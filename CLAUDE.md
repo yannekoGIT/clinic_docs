@@ -35,7 +35,8 @@ clinic_docs/
 │  ★ 実行ファイル ★
 ├── generate.py              # メインCLI（エントリーポイント）
 ├── run_batch.py             # 汎用バッチ生成スクリプト
-├── 紹介状バッチ生成.bat / 自立支援書類作成.bat / 障害年金書類作成.bat
+├── Win_紹介状バッチ生成.bat / Win_自立支援書類作成.bat / Win_障害年金書類作成.bat
+├── Mac_紹介状作成.command / Mac_自立支援書類作成.command / Mac_障害年金書類作成.command
 │
 │  ★ 内部モジュール ★
 ├── lib/
