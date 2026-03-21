@@ -45,16 +45,19 @@ def get_output_ext(doc_type):
 
 
 def generate_output_path(doc_type, input_file, ext=None):
-    """入力ファイル名から日付フォルダ+拡張子別サブフォルダ付き出力パスを生成
-    例: output/YYYY-MM-DD/docx/{doc_type}_{stem}_{HHMMSS}.docx
+    """入力ファイル名から日付フォルダ付き出力パスを生成
+    通常: output/YYYY-MM-DD/{doc_type}_{stem}_{HHMMSS}.ext
+    JSON: output/YYYY-MM-DD/json/{doc_type}_{stem}_{HHMMSS}.json
     """
     if ext is None:
         ext = get_output_ext(doc_type)
     now = datetime.now()
     date_dir = now.strftime("%Y-%m-%d")
     timestamp = now.strftime("%H%M%S")
-    sub_dir = ext.lstrip(".")
-    out_dir = ROOT / "output" / date_dir / sub_dir
+    if ext == ".json":
+        out_dir = ROOT / "output" / date_dir / "json"
+    else:
+        out_dir = ROOT / "output" / date_dir
     out_dir.mkdir(parents=True, exist_ok=True)
     return out_dir / f"{doc_type}_{input_file.stem}_{timestamp}{ext}"
 

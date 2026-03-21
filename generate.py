@@ -127,15 +127,17 @@ def get_clinic_info(config):
 
 
 def make_output_path(doc_type, base_dir=None, ext=".docx"):
-    """日付フォルダ+拡張子別サブフォルダ付きの出力パスを生成
-    例: output/YYYY-MM-DD/docx/{doc_type}_{HHMMSS}.docx
+    """日付フォルダ付きの出力パスを生成
+    通常: output/YYYY-MM-DD/{doc_type}_{HHMMSS}.docx
+    JSON: output/YYYY-MM-DD/json/{doc_type}_{HHMMSS}.json
     """
     now = datetime.now()
     date_dir = now.strftime("%Y-%m-%d")
     timestamp = now.strftime("%H%M%S")
-    # 拡張子からサブフォルダ名（.docx→docx, .xlsx→xlsx, .txt→txt, .json→json）
-    sub_dir = ext.lstrip(".")
-    out_dir = (base_dir or ROOT / "output") / date_dir / sub_dir
+    if ext == ".json":
+        out_dir = (base_dir or ROOT / "output") / date_dir / "json"
+    else:
+        out_dir = (base_dir or ROOT / "output") / date_dir
     out_dir.mkdir(parents=True, exist_ok=True)
     return out_dir / f"{doc_type}_{timestamp}{ext}"
 
