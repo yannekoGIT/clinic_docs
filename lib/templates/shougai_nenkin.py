@@ -3,8 +3,10 @@
 公式書式 04 (1).xlsx にJSONデータを流し込む（xlwings使用・フォーマット完全保持）
 Usage: python shougai_nenkin.py <input.json> <output.xlsx>
 """
-import sys, json, os, shutil
+import sys, json, os, shutil, platform
 import xlwings as xw
+
+IS_MAC = platform.system() == "Darwin"
 
 TEMPLATE = os.path.join(os.path.dirname(__file__), "..", "..", "sample", "障害年金", "04 (1).xlsx")
 C = "レ"  # チェックマーク（プルダウン "レ,　" の選択値）
@@ -27,7 +29,10 @@ def s(ws, cell_ref, value, shrink=False):
         value = value.replace("\\n", "\n")
     cell.value = value
     if shrink:
-        cell.api.ShrinkToFit = True
+        try:
+            cell.api.ShrinkToFit = True
+        except Exception:
+            pass  # Mac版Excelでは未対応の場合あり
 
 def fill_template(data, output_path):
     abs_output = os.path.abspath(output_path)
@@ -60,7 +65,10 @@ def fill_template(data, output_path):
         ins = _merge_clinic_defaults(ins)
 
         # ======== ヘッダー: 「精」に○（図形で囲む） ========
-        _add_circle_around_cell(ws, "H3")
+        try:
+            _add_circle_around_cell(ws, "H3")
+        except Exception:
+            pass  # Mac版で図形APIが異なる場合はスキップ
 
         # ======== 患者基本情報 ========
         _fill_patient_info(ws, pt, data.get("date", ""))

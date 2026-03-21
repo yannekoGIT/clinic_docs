@@ -3,8 +3,10 @@
 公式書式 2jiritsu.xls にJSONデータを流し込む（xlwings使用・フォーマット完全保持）
 Usage: python jiritsu_shien.py <input.json> <output.xls>
 """
-import sys, json, os, shutil
+import sys, json, os, shutil, platform
 import xlwings as xw
+
+IS_MAC = platform.system() == "Darwin"
 
 TEMPLATE = os.path.join(os.path.dirname(__file__), "..", "..", "sample", "自立支援", "2jiritsu.xls")
 
