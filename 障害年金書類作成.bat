@@ -19,7 +19,7 @@ if %ERRORLEVEL% NEQ 0 (
 )
 echo 障害年金診断書（.xlsx）を生成します。
 echo.
-python run_batch.py shougai_nenkin --save-json %*
+python run_batch.py shougai_nenkin %*
 echo.
 if %ERRORLEVEL% EQU 0 (
     echo 出力先: output フォルダを確認してください。

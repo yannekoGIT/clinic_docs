@@ -127,11 +127,15 @@ def get_clinic_info(config):
 
 
 def make_output_path(doc_type, base_dir=None, ext=".docx"):
-    """日付フォルダ付きの出力パスを生成: output/YYYY-MM-DD/{doc_type}_{HHMMSS}.docx"""
+    """日付フォルダ+拡張子別サブフォルダ付きの出力パスを生成
+    例: output/YYYY-MM-DD/docx/{doc_type}_{HHMMSS}.docx
+    """
     now = datetime.now()
     date_dir = now.strftime("%Y-%m-%d")
     timestamp = now.strftime("%H%M%S")
-    out_dir = (base_dir or ROOT / "output") / date_dir
+    # 拡張子からサブフォルダ名（.docx→docx, .xlsx→xlsx, .txt→txt, .json→json）
+    sub_dir = ext.lstrip(".")
+    out_dir = (base_dir or ROOT / "output") / date_dir / sub_dir
     out_dir.mkdir(parents=True, exist_ok=True)
     return out_dir / f"{doc_type}_{timestamp}{ext}"
 
@@ -528,9 +532,9 @@ def main():
             sys.exit(3)
         print("[INFO] LLM処理完了")
 
-        # 中間JSON保存（direct_textモード以外）
+        # 中間JSON保存（direct_textモード以外、jsonサブフォルダに格納）
         if args.save_json and "_raw_text" not in json_data:
-            json_path = output_path.with_suffix(".json")
+            json_path = make_output_path(args.doc_type, ext=".json")
             with open(json_path, "w", encoding="utf-8") as f:
                 json.dump(json_data, f, ensure_ascii=False, indent=2)
             print(f"[INFO] JSON保存: {json_path}")

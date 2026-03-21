@@ -18,7 +18,7 @@ if %ERRORLEVEL% NEQ 0 (
     pause
     exit /b 1
 )
-python run_batch.py jiritsu_shien_word --save-json %*
+python run_batch.py jiritsu_shien_word %*
 echo.
 if %ERRORLEVEL% EQU 0 (
     echo 出力先: output フォルダを確認してください。
