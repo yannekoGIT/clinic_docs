@@ -1,0 +1,770 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "障害年金診断書（精神の障害用）様式第120号の4",
+  "type": "object",
+  "required": [
+    "date",
+    "patient",
+    "diagnosis",
+    "first_visit",
+    "existing_disability",
+    "prior_illness",
+    "remission",
+    "history",
+    "initial_findings",
+    "development_history",
+    "disability_state",
+    "daily_ability_and_labor",
+    "prognosis",
+    "remarks_13",
+    "institution"
+  ],
+  "properties": {
+    "date": {
+      "type": "string",
+      "description": "診断書作成日 (YYYY-MM-DD)"
+    },
+    "patient": {
+      "type": "object",
+      "required": [
+        "name",
+        "furigana",
+        "birthdate",
+        "sex",
+        "age",
+        "postal_code",
+        "address"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "氏名"
+        },
+        "furigana": {
+          "type": "string",
+          "description": "氏名フリガナ"
+        },
+        "birthdate": {
+          "type": "string",
+          "description": "生年月日 (YYYY-MM-DD)"
+        },
+        "sex": {
+          "type": "string",
+          "enum": [
+            "男",
+            "女"
+          ],
+          "description": "性別"
+        },
+        "age": {
+          "type": "integer",
+          "description": "診断書作成日時点の年齢"
+        },
+        "postal_code": {
+          "type": "string",
+          "description": "郵便番号"
+        },
+        "address": {
+          "type": "string",
+          "description": "住所（都道府県・郡市区）"
+        }
+      },
+      "additionalProperties": false
+    },
+    "diagnosis": {
+      "type": "object",
+      "description": "① 障害の原因となった傷病名",
+      "required": [
+        "disease_name",
+        "icd_code",
+        "onset_date",
+        "onset_source",
+        "occupation_at_onset"
+      ],
+      "properties": {
+        "disease_name": {
+          "type": "string",
+          "description": "傷病名"
+        },
+        "icd_code": {
+          "type": "string",
+          "description": "ICD-10コード"
+        },
+        "onset_date": {
+          "type": "string",
+          "description": "② 傷病の発生年月日 (YYYY-MM-DD)"
+        },
+        "onset_source": {
+          "type": "string",
+          "enum": [
+            "診療録で確認",
+            "本人の申立て"
+          ],
+          "description": "発生年月日の確認方法"
+        },
+        "occupation_at_onset": {
+          "type": "string",
+          "description": "本人の発病時の職業"
+        }
+      },
+      "additionalProperties": false
+    },
+    "first_visit": {
+      "type": "object",
+      "description": "③ ①のために初めて医師の診療を受けた日",
+      "properties": {
+        "date": {
+          "type": "string",
+          "description": "初診日 (YYYY-MM-DD)"
+        },
+        "source": {
+          "type": "string",
+          "enum": [
+            "診療録で確認",
+            "本人の申立て"
+          ],
+          "description": "確認方法"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "date",
+        "source"
+      ]
+    },
+    "existing_disability": {
+      "type": "string",
+      "description": "④ 既存障害（初診前から有していた障害）"
+    },
+    "prior_illness": {
+      "type": "string",
+      "description": "⑤ 既往症（初診前に罹患したことのある疾患）"
+    },
+    "remission": {
+      "type": "object",
+      "description": "⑥ 傷病が治った（症状が固定）かどうか",
+      "properties": {
+        "remission_date": {
+          "type": "string",
+          "description": "治った日 (YYYY-MM-DD or 空)"
+        },
+        "confirmed_or_estimated": {
+          "type": "string",
+          "enum": [
+            "確認",
+            "推定"
+          ],
+          "description": "確認/推定"
+        },
+        "prognosis_outlook": {
+          "type": "string",
+          "enum": [
+            "有",
+            "無",
+            "不明"
+          ],
+          "description": "症状のよくなる見込み"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "remission_date",
+        "confirmed_or_estimated",
+        "prognosis_outlook"
+      ]
+    },
+    "history": {
+      "type": "object",
+      "description": "⑦ 発病から現在までの病歴及び治療の経過",
+      "properties": {
+        "informant_name": {
+          "type": "string",
+          "description": "陳述者の氏名"
+        },
+        "informant_relationship": {
+          "type": "string",
+          "description": "請求人との続柄"
+        },
+        "interview_date": {
+          "type": "string",
+          "description": "聴取年月日 (YYYY-MM-DD)"
+        },
+        "narrative": {
+          "type": "string",
+          "description": "発病から現在までの病歴（心理的・環境的要因、発病経過、治療内容、就学・就労状況等を詳しく）"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "informant_name",
+        "informant_relationship",
+        "interview_date",
+        "narrative"
+      ]
+    },
+    "initial_findings": {
+      "type": "object",
+      "description": "⑧ 診断書作成医療機関における初診時所見",
+      "properties": {
+        "first_visit_date": {
+          "type": "string",
+          "description": "当院初診年月日 (YYYY-MM-DD)"
+        },
+        "findings": {
+          "type": "string",
+          "description": "初診時所見"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "first_visit_date",
+        "findings"
+      ]
+    },
+    "development_history": {
+      "type": "object",
+      "description": "⑨ これまでの発育・養育歴等",
+      "properties": {
+        "development": {
+          "type": "string",
+          "description": "ア 発育・養育歴"
+        },
+        "education": {
+          "type": "object",
+          "description": "イ 教育歴",
+          "properties": {
+            "level": {
+              "type": "string",
+              "description": "最終学歴等（通常学級/特別支援学級/特別支援学校）"
+            },
+            "detail": {
+              "type": "string",
+              "description": "詳細（不登校、中途退学等あれば）"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "level",
+            "detail"
+          ]
+        },
+        "work_history": {
+          "type": "string",
+          "description": "ウ 職歴"
+        },
+        "treatment_history": {
+          "type": "array",
+          "description": "エ 治療歴（医療機関ごと）",
+          "items": {
+            "type": "object",
+            "properties": {
+              "institution": {
+                "type": "string",
+                "description": "医療機関名"
+              },
+              "period_from": {
+                "type": "string",
+                "description": "治療期間開始 (YYYY-MM)"
+              },
+              "period_to": {
+                "type": "string",
+                "description": "治療期間終了 (YYYY-MM)"
+              },
+              "inpatient_outpatient": {
+                "type": "string",
+                "enum": [
+                  "入院",
+                  "外来"
+                ],
+                "description": "入院/外来"
+              },
+              "disease_name": {
+                "type": "string",
+                "description": "病名"
+              },
+              "treatment": {
+                "type": "string",
+                "description": "主な療法"
+              },
+              "outcome": {
+                "type": "string",
+                "enum": [
+                  "軽快",
+                  "悪化",
+                  "不変"
+                ],
+                "description": "転帰"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "institution",
+              "period_from",
+              "period_to",
+              "inpatient_outpatient",
+              "disease_name",
+              "treatment",
+              "outcome"
+            ]
+          }
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "development",
+        "education",
+        "work_history",
+        "treatment_history"
+      ]
+    },
+    "disability_state": {
+      "type": "object",
+      "description": "⑩ 障害の状態",
+      "required": [
+        "assessment_date",
+        "previous_comparison",
+        "symptom_checklist",
+        "detail_description",
+        "daily_living",
+        "employment",
+        "physical_findings",
+        "clinical_tests",
+        "welfare_services"
+      ],
+      "properties": {
+        "assessment_date": {
+          "type": "string",
+          "description": "現症日 (YYYY-MM-DD)"
+        },
+        "previous_comparison": {
+          "type": "string",
+          "enum": [
+            "変化なし",
+            "改善している",
+            "悪化している",
+            "不明"
+          ],
+          "description": "前回の診断書の記載時との比較（前回がある場合）"
+        },
+        "symptom_checklist": {
+          "type": "object",
+          "description": "ア 現在の病状又は状態像（該当するものに○印）",
+          "properties": {
+            "delusion": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "I 抑うつ状態: 思考・運動制止, 制御性・病理, 憂うつ気分, 自殺念慮, その他"
+            },
+            "mood_state": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "II そう状態: 行為心迫, 多弁・多動, 気分(感情)の異変な高揚・刺激性, 観念奔逸, 易怒性・脱制御傾向, 誇大妄想"
+            },
+            "hallucination_delusion": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "III 幻覚妄想状態: 幻覚, 妄想, させられ体験, 思考形式の障害, 著しい奇異な行為, その他"
+            },
+            "psychomotor": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "IV 精神運動興奮状態及び昏迷の状態: 興奮, 怒迫, 拒絶・拒食, 減裂思考, 暴動行為, 自傷, 無動・無関, その他"
+            },
+            "residual_state": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "V 統合失調症等残遺状態: 自閉, 感情の平板化, 意欲の減退, その他"
+            },
+            "consciousness": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "VI 意識障害・てんかん: 意識混濁, (常同)せん妄, もうろう, 錯乱, てんかん発作, 不機嫌発作, その他"
+            },
+            "epilepsy_detail": {
+              "type": "object",
+              "description": "てんかん発作の詳細",
+              "properties": {
+                "seizure_type": {
+                  "type": "string",
+                  "description": "発作のタイプ (A/B/C/D)"
+                },
+                "frequency_per_year": {
+                  "type": "string",
+                  "description": "発作頻度（回/年月）"
+                },
+                "last_seizure": {
+                  "type": "string",
+                  "description": "最終発作日"
+                }
+              },
+              "additionalProperties": false,
+              "required": [
+                "seizure_type",
+                "frequency_per_year",
+                "last_seizure"
+              ]
+            },
+            "intellectual": {
+              "type": "object",
+              "description": "VII 知能障害等",
+              "properties": {
+                "intellectual_disability": {
+                  "type": "string",
+                  "enum": [
+                    "",
+                    "軽度",
+                    "中等度",
+                    "重度",
+                    "最重度"
+                  ],
+                  "description": "知的障害の程度"
+                },
+                "dementia": {
+                  "type": "string",
+                  "enum": [
+                    "",
+                    "軽度",
+                    "中等度",
+                    "重度",
+                    "最重度"
+                  ],
+                  "description": "認知症の程度"
+                },
+                "other": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "失行/失認/記憶障害/遂行機能障害/社会的行動障害/学習障害/計算/その他"
+                }
+              },
+              "additionalProperties": false,
+              "required": [
+                "intellectual_disability",
+                "dementia",
+                "other"
+              ]
+            },
+            "developmental_disorder": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "VIII 発達障害関連症状: 相互的な社会関係の質的障害, 言語コミュニケーションの障害, 限定した常同的で反復的な関心と行動, その他"
+            },
+            "personality_change": {
+              "type": "object",
+              "description": "IX 人格変化",
+              "properties": {
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "攻撃性, 無関心, 無為, その他"
+                }
+              },
+              "additionalProperties": false,
+              "required": [
+                "items"
+              ]
+            },
+            "substance_use": {
+              "type": "object",
+              "description": "X 乱用、依存等",
+              "properties": {
+                "substance": {
+                  "type": "string",
+                  "description": "薬物等名"
+                },
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "乱用, 依存"
+                }
+              },
+              "additionalProperties": false,
+              "required": [
+                "substance",
+                "items"
+              ]
+            },
+            "other": {
+              "type": "string",
+              "description": "XI その他"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "delusion",
+            "mood_state",
+            "hallucination_delusion",
+            "psychomotor",
+            "residual_state",
+            "consciousness",
+            "epilepsy_detail",
+            "intellectual",
+            "developmental_disorder",
+            "personality_change",
+            "substance_use",
+            "other"
+          ]
+        },
+        "detail_description": {
+          "type": "string",
+          "description": "イ 左記の状態について、その程度・症状・処方薬等を具体的に記載"
+        },
+        "daily_living": {
+          "type": "object",
+          "description": "ウ 日常生活状況",
+          "properties": {
+            "living_situation": {
+              "type": "string",
+              "enum": [
+                "入院",
+                "入所",
+                "在宅",
+                "その他"
+              ],
+              "description": "(ア) 現在の生活環境"
+            },
+            "living_detail": {
+              "type": "string",
+              "description": "施設名等の詳細"
+            },
+            "cohabitant": {
+              "type": "string",
+              "enum": [
+                "有",
+                "無"
+              ],
+              "description": "同居者の有無"
+            },
+            "social_situation": {
+              "type": "string",
+              "description": "(イ) 全般的状況（家族及び家族以外の者との対人関係）"
+            },
+            "daily_assessment": {
+              "type": "object",
+              "description": "2 日常生活能力の判定（1=できる, 2=おおむねできるが時に助言要, 3=助言や指導があればできる, 4=助言や指導をしてもできない）",
+              "properties": {
+                "eating": {
+                  "type": "integer",
+                  "enum": [
+                    1,
+                    2,
+                    3,
+                    4
+                  ],
+                  "description": "(1) 適切な食事"
+                },
+                "hygiene": {
+                  "type": "integer",
+                  "enum": [
+                    1,
+                    2,
+                    3,
+                    4
+                  ],
+                  "description": "(2) 身辺の清潔保持"
+                },
+                "money": {
+                  "type": "integer",
+                  "enum": [
+                    1,
+                    2,
+                    3,
+                    4
+                  ],
+                  "description": "(3) 金銭管理と買い物"
+                },
+                "medication": {
+                  "type": "integer",
+                  "enum": [
+                    1,
+                    2,
+                    3,
+                    4
+                  ],
+                  "description": "(4) 通院と服薬"
+                },
+                "communication": {
+                  "type": "integer",
+                  "enum": [
+                    1,
+                    2,
+                    3,
+                    4
+                  ],
+                  "description": "(5) 他人との意思伝達及び対人関係"
+                },
+                "safety": {
+                  "type": "integer",
+                  "enum": [
+                    1,
+                    2,
+                    3,
+                    4
+                  ],
+                  "description": "(6) 身辺の安全保持及び危機対応"
+                },
+                "social": {
+                  "type": "integer",
+                  "enum": [
+                    1,
+                    2,
+                    3,
+                    4
+                  ],
+                  "description": "(7) 社会性"
+                }
+              },
+              "additionalProperties": false,
+              "required": [
+                "eating",
+                "hygiene",
+                "money",
+                "medication",
+                "communication",
+                "safety",
+                "social"
+              ]
+            },
+            "daily_living_level": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ],
+              "description": "3 日常生活能力の程度（精神障害: 1-5、1=普通にできる〜5=常時の援助が必要）"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "living_situation",
+            "living_detail",
+            "cohabitant",
+            "social_situation",
+            "daily_assessment",
+            "daily_living_level"
+          ]
+        },
+        "employment": {
+          "type": "object",
+          "description": "エ 現症時の就労状況",
+          "properties": {
+            "workplace": {
+              "type": "string",
+              "description": "勤務先（一般企業/就労支援施設/その他）"
+            },
+            "employment_type": {
+              "type": "string",
+              "description": "雇用体系（障害者雇用/一般雇用/自営/その他）"
+            },
+            "tenure": {
+              "type": "string",
+              "description": "勤続年数"
+            },
+            "work_frequency": {
+              "type": "string",
+              "description": "仕事の頻度（週○日、月○日）"
+            },
+            "monthly_income": {
+              "type": "string",
+              "description": "ひと月の給与（円程度）"
+            },
+            "work_content": {
+              "type": "string",
+              "description": "仕事の内容"
+            },
+            "support_at_work": {
+              "type": "string",
+              "description": "仕事場での援助の状況や意思疎通の状況"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "workplace",
+            "employment_type",
+            "tenure",
+            "work_frequency",
+            "monthly_income",
+            "work_content",
+            "support_at_work"
+          ]
+        },
+        "physical_findings": {
+          "type": "string",
+          "description": "オ 身体所見（神経学的な所見を含む）"
+        },
+        "clinical_tests": {
+          "type": "string",
+          "description": "カ 臨床検査（心理テスト・認知検査、知能障害の場合は知能指数、精神年齢も含む）"
+        },
+        "welfare_services": {
+          "type": "string",
+          "description": "キ 福祉サービスの利用状況（障害者総合支援法に規定する自立訓練、共同生活援助、居宅介護、その他障害福祉サービス等）"
+        }
+      },
+      "additionalProperties": false
+    },
+    "daily_ability_and_labor": {
+      "type": "string",
+      "description": "⑪ 現在時の日常生活活動能力及び労働能力"
+    },
+    "prognosis": {
+      "type": "string",
+      "description": "⑫ 予後"
+    },
+    "remarks_13": {
+      "type": "string",
+      "description": "⑬ 備考"
+    },
+    "institution": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "病院又は診療所の名称"
+        },
+        "department": {
+          "type": "string",
+          "description": "診療担当科名"
+        },
+        "address": {
+          "type": "string",
+          "description": "所在地"
+        },
+        "doctor": {
+          "type": "string",
+          "description": "医師氏名"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "department",
+        "address",
+        "doctor"
+      ]
+    }
+  },
+  "additionalProperties": false
+}

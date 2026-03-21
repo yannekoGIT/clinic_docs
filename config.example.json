@@ -1,0 +1,96 @@
+{
+  "_readme": "=== クリニック書類自動生成システム 設定ファイル ===",
+  "_readme2": "このファイルを config.json にコピーして、クリニック情報等を編集してください。",
+  "_readme3": "「_」で始まるキーは説明用です。プログラムは無視します。",
+
+  "llm": {
+    "_説明": "LLMプロバイダーの設定。provider を codex / api / local から選択",
+    "provider": "api",
+    "codex": {
+      "model": "o4-mini"
+    },
+    "api": {
+      "type": "openai_compatible",
+      "base_url": "https://api.openai.com/v1",
+      "api_key_env": "OPENAI_API_KEY",
+      "model": "chatgpt-5.4"
+    },
+    "local": {
+      "type": "openai_compatible",
+      "base_url": "http://localhost:11434/v1",
+      "api_key_env": "",
+      "model": "qwen2.5:14b"
+    }
+  },
+
+  "clinic": {
+    "_説明": "クリニック情報。書類の署名欄等に自動記入されます。",
+    "name": "〇〇クリニック",
+    "department": "精神科",
+    "doctor": "〇〇 〇〇",
+    "address": "東京都〇〇区〇〇 1-2-3",
+    "phone": "03-XXXX-XXXX",
+    "code": "",
+    "designated_number": "",
+    "doctor_years": ""
+  },
+
+  "output_dir": "./output",
+
+  "char_limits": {
+    "_説明": "LLMが生成するテキストの上限文字数。書式の枠に収まるよう調整してください。",
+    "_説明2": "数字を大きくすると詳しく書かれますが枠からはみ出して文字が小さくなります。",
+    "_説明3": "数字を小さくすると簡潔になりますが情報が不足する可能性があります。",
+
+    "jiritsu_shien": {
+      "_説明": "自立支援医療診断書の各欄の文字数上限",
+      "clinical_course": 200,
+      "_clinical_course": "２ 発病から現在までの病歴",
+      "condition_detail": 100,
+      "_condition_detail": "４ 病状の具体的程度",
+      "psychotherapy": 60,
+      "_psychotherapy": "５(2) 精神療法等",
+      "treatment_plan": 80,
+      "_treatment_plan": "６ 今後の治療方針"
+    },
+
+    "shougai_nenkin": {
+      "_説明": "障害年金診断書の各欄の文字数上限",
+      "narrative": 250,
+      "_narrative": "⑦ 発病から現在までの病歴",
+      "findings": 80,
+      "_findings": "⑧ 初診時所見",
+      "detail_description": 200,
+      "_detail_description": "⑩イ 具体的記載（処方薬含む）",
+      "social_situation": 50,
+      "_social_situation": "ウ 全般的な対人関係の状況",
+      "daily_ability_and_labor": 60,
+      "_daily_ability_and_labor": "⑪ 日常生活活動能力及び労働能力",
+      "prognosis": 50,
+      "_prognosis": "⑫ 予後",
+      "development": 30,
+      "_development": "⑨ア 発育・養育歴（小さい欄）",
+      "work_history": 30,
+      "_work_history": "⑨ウ 職歴（小さい欄）",
+      "institution": 10,
+      "_institution": "⑨エ 治療歴の医療機関名（短い欄）",
+      "treatment": 10,
+      "_treatment": "⑨エ 治療歴の主な療法（短い欄）",
+      "work_content": 50,
+      "_work_content": "エ 仕事の内容",
+      "support_at_work": 50,
+      "_support_at_work": "エ 職場での援助状況"
+    }
+  },
+
+  "custom_prompt": {
+    "_説明": "LLMへの追加指示。ここに書いた内容がプロンプトの末尾に追加されます。",
+    "_説明2": "書類ごとに指示を変えられます。空文字列の場合は何も追加されません。",
+    "_例": "例: 「薬品名は一般名ではなく商品名で記載すること」",
+
+    "jiritsu_shien": "",
+    "shougai_nenkin": "",
+    "referral": "",
+    "diagnosis": ""
+  }
+}

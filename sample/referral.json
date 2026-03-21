@@ -1,0 +1,30 @@
+{
+  "date": "2026-03-20",
+  "to_institution": "東京大学医学部附属病院",
+  "to_department": "消化器内科",
+  "to_doctor": "御担当医",
+  "from_institution": "〇〇クリニック",
+  "from_department": "精神科",
+  "from_doctor": "〇〇 〇〇",
+  "from_address": "東京都...",
+  "from_phone": "03-XXXX-XXXX",
+  "patient": {
+    "name": "山田 太郎",
+    "birthdate": "1985-06-15",
+    "sex": "男",
+    "age": 40
+  },
+  "diagnosis": [
+    "機能性ディスペプシア",
+    "逆流性食道炎"
+  ],
+  "clinical_course": "2025年10月頃より心窩部痛および食後の膨満感を主訴に当院を受診した。上部消化管内視鏡検査にてLA分類Grade Aの逆流性食道炎を認めた。プロトンポンプ阻害薬（ラベプラゾール10mg）の投与により食道炎は改善を認めたが、心窩部痛および早期満腹感が遷延しており、機能性ディスペプシアと診断した。\nアコチアミド塩酸塩100mg 1日3回の追加投与を行ったが、症状の改善は乏しい状況である。",
+  "current_medications": [
+    { "name": "ラベプラゾール錠", "dosage": "10mg", "frequency": "1日1回 朝食後" },
+    { "name": "アコチアミド塩酸塩錠", "dosage": "100mg", "frequency": "1日3回 毎食前" },
+    { "name": "酸化マグネシウム錠", "dosage": "330mg", "frequency": "1日3回 毎食後" }
+  ],
+  "test_results": "上部消化管内視鏡（2025/11/20）: LA分類Grade Aの逆流性食道炎、Helicobacter pylori陰性\n血液検査（2025/12/10）: WBC 5800/μL, CRP 0.1mg/dL, Hb 14.2g/dL, AST 22U/L, ALT 18U/L",
+  "purpose": "上記の通り、機能性ディスペプシアによる症状が遷延しており、当院での治療では十分な改善が得られない状況です。専門的な精査および加療につき、ご高診のほどよろしくお願い申し上げます。",
+  "remarks": ""
+}

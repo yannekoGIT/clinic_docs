@@ -1,0 +1,30 @@
+# 依存
+node_modules/
+
+# Python
+__pycache__/
+*.pyc
+
+# 出力ファイル
+output/
+
+# 機密情報（APIキーを直接書いた場合の安全策）
+.env
+config.json
+config.local.json
+# config.example.json はテンプレートとして追跡する
+
+# 一時的な監査・分析スクリプト
+AUDIT_*
+QUALITY_AUDIT_*
+DETAILED_DIFF_*
+analyze_*.py
+audit_*.py
+detailed_check.py
+
+# 旧スクリプト
+run_referral.py
+
+# OS
+.DS_Store
+Thumbs.db

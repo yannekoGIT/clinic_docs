@@ -1,0 +1,68 @@
+{
+  "date": "2026-03-20",
+  "patient": {
+    "name": "",
+    "birthdate": "",
+    "sex": "",
+    "age": "",
+    "address": ""
+  },
+  "diagnosis_main": "うつ病",
+  "icd_code_main": "F32.1",
+  "diagnosis_sub": "社交不安障害",
+  "icd_code_sub": "F40.1",
+  "comorbidity": "",
+  "clinical_course": "2023年4月頃より職場でのストレスを契機に抑うつ気分、不眠、食欲低下が出現。同年5月に当院を初診した。中等度のうつ病と診断し、抗うつ薬（セルトラリン）を開始した。\n2023年8月より休職。セルトラリンを増量し、50mgで維持。2024年1月に復職を試みるも症状再燃し、再休職。\n2024年4月よりミルタザピン追加。症状はやや改善したが、対人場面での強い不安が遷延しており、社交不安障害を併存と診断。\n現在も通院加療を継続中。月2回の通院。",
+  "onset_date": "2023-04",
+  "first_visit_date": "2023-05-10",
+  "current_condition": {
+    "manic_state": [],
+    "depressive_state": ["憂うつ気分", "その他"],
+    "hallucination_delusion": [],
+    "cognitive_decline": [],
+    "personality_behavior": ["意欲の減退"],
+    "emotion_behavior": [],
+    "anxiety_neurosis": ["強度の不安・恐怖感", "その他"],
+    "epilepsy": {
+      "has_epilepsy": false,
+      "seizure_type": "",
+      "frequency": "",
+      "last_seizure": "",
+      "consciousness_disorder": false,
+      "other": ""
+    },
+    "substance_use": [],
+    "cognitive_learning": [],
+    "developmental": [],
+    "other": ""
+  },
+  "condition_detail": "現在、抑うつ気分は中等度で持続しており、意欲低下と疲労感が強い。対人場面での不安が顕著で、外出を回避する傾向がある。睡眠は入眠困難と中途覚醒があり、日中の倦怠感に影響している。\n食欲は服薬によりやや改善しているが、自炊は困難な状態。集中力の低下があり、読書や長時間の作業が困難。\n希死念慮は現在否定しているが、過去に一過性の希死念慮があった。",
+  "treatment": {
+    "medications": [
+      { "name": "セルトラリン錠", "dosage": "50mg", "frequency": "1日1回 夕食後" },
+      { "name": "ミルタザピン錠", "dosage": "15mg", "frequency": "1日1回 就寝前" },
+      { "name": "ブロチゾラム錠", "dosage": "0.25mg", "frequency": "1日1回 就寝前（不眠時）" }
+    ],
+    "psychotherapy": "月2回の通院にて支持的精神療法を実施。抑うつ症状の経過を確認しながら、認知行動療法的アプローチにより、否定的認知パターンの修正と段階的な行動活性化を指導している。対人不安に対しては曝露療法の導入を検討中。服薬アドヒアランスの確認と副作用モニタリングも毎回実施。",
+    "designated_doctor": "無"
+  },
+  "treatment_plan": "抗うつ薬（セルトラリン・ミルタザピン）による薬物療法を継続し、抑うつ症状の安定化を図る。社交不安障害に対しては段階的な曝露療法を導入し、回避行動の軽減を目指す。再発予防の観点から、ストレス対処法の獲得と生活リズムの安定化を支援し、継続的な通院による精神療法及び薬物療法が不可欠である。復職に向けたリワークプログラムの利用も検討する。",
+  "welfare_services": {
+    "items": ["なし"],
+    "other_detail": ""
+  },
+  "remarks": "",
+  "institution": {
+    "code": "",
+    "name": "なごみクリニック",
+    "address": "〒144-0051 東京都大田区西蒲田7丁目1-3 8F",
+    "phone": "03-6424-5770",
+    "doctor": "山田和男",
+    "designated_doctor": false,
+    "doctor_years": ""
+  },
+  "heavy_continuous": {
+    "applicable": true,
+    "reason": "ICD-10コードF32（うつ病エピソード）はF0-F3の範囲に該当"
+  }
+}

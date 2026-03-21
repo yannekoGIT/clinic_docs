@@ -1,0 +1,398 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "自立支援医療診断書（精神通院医療用）",
+  "type": "object",
+  "required": [
+    "date",
+    "patient",
+    "diagnosis_main",
+    "icd_code_main",
+    "diagnosis_sub",
+    "icd_code_sub",
+    "comorbidity",
+    "clinical_course",
+    "onset_date",
+    "first_visit_date",
+    "current_condition",
+    "condition_detail",
+    "treatment",
+    "treatment_plan",
+    "welfare_services",
+    "remarks",
+    "institution",
+    "heavy_continuous"
+  ],
+  "properties": {
+    "date": {
+      "type": "string",
+      "description": "診断書作成日 (YYYY-MM-DD)"
+    },
+    "patient": {
+      "type": "object",
+      "required": [
+        "name",
+        "furigana",
+        "birthdate",
+        "sex",
+        "age",
+        "postal_code",
+        "address"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "患者氏名"
+        },
+        "furigana": {
+          "type": "string",
+          "description": "患者氏名フリガナ"
+        },
+        "birthdate": {
+          "type": "string",
+          "description": "生年月日 (YYYY-MM-DD)"
+        },
+        "sex": {
+          "type": "string",
+          "enum": [
+            "男",
+            "女"
+          ],
+          "description": "性別"
+        },
+        "age": {
+          "type": "integer",
+          "description": "年齢"
+        },
+        "postal_code": {
+          "type": "string",
+          "description": "郵便番号"
+        },
+        "address": {
+          "type": "string",
+          "description": "患者住所"
+        }
+      },
+      "additionalProperties": false
+    },
+    "diagnosis_main": {
+      "type": "string",
+      "description": "主たる精神障害名"
+    },
+    "icd_code_main": {
+      "type": "string",
+      "description": "主たる精神障害のICD-10コード（2桁以上、F00-F99, G40）"
+    },
+    "diagnosis_sub": {
+      "type": "string",
+      "description": "従たる精神障害名（あれば）"
+    },
+    "icd_code_sub": {
+      "type": "string",
+      "description": "従たる精神障害のICD-10コード（あれば）"
+    },
+    "comorbidity": {
+      "type": "string",
+      "description": "身体合併症（精神障害に起因する身体症状のみ記載。対象外の合併症は備考欄へ）"
+    },
+    "clinical_course": {
+      "type": "string",
+      "description": "２ 発病から現在までの病歴（発病年月日・初診日を必ず含む。入退院歴・通院歴も記載）"
+    },
+    "onset_date": {
+      "type": "string",
+      "description": "発病年月日 (YYYY-MM-DD or YYYY-MM)"
+    },
+    "first_visit_date": {
+      "type": "string",
+      "description": "初診年月日 (YYYY-MM-DD or YYYY-MM)"
+    },
+    "current_condition": {
+      "type": "object",
+      "description": "３ 現在の病状・状態像（該当項目を選択）",
+      "properties": {
+        "manic_state": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "(1) 躁状態: 思考奔逸・誇大妄想, 自殺願望・自殺企図, カタレプシー, その他"
+        },
+        "depressive_state": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "(2) 抑うつ: 不安焦燥, 昏迷, 自殺念慮・自殺企図, その他"
+        },
+        "hallucination_delusion": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "(3) 幻覚妄想状態: 幻覚, 妄想, その他"
+        },
+        "cognitive_decline": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "(4) 精神運動興奮及び昏迷・拒絶: 興奮, 昏迷, 拒絶, その他"
+        },
+        "personality_behavior": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "(5) 人格障害・行動障害: 暴言, 暴力行為, 意欲の減退, その他"
+        },
+        "emotion_behavior": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "(6) 情緒及び行動の障害: 感情鈍麻, 衝動性, 気分変動, 表出・衝動行為, 常同行為, 徘徊, 食行動の異常, 排泄行動の異常, チック・吃音, その他"
+        },
+        "anxiety_neurosis": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "(7) 不安及び不穏状態: 強度の不安・恐怖感, 精神運動性不穏, 心身症状, 睡眠の障害, 心気症状, 心的外傷に関連した症状, 解離・転換症状, その他"
+        },
+        "epilepsy": {
+          "type": "object",
+          "description": "(8) てんかん発作等（意識障害含む）",
+          "properties": {
+            "has_epilepsy": {
+              "type": "boolean"
+            },
+            "seizure_type": {
+              "type": "string",
+              "description": "てんかん発作の型 (イ/ロ/ハ/ニ)"
+            },
+            "frequency": {
+              "type": "string",
+              "description": "頻度（○回/年）"
+            },
+            "last_seizure": {
+              "type": "string",
+              "description": "最終発作日 (YYYY-MM-DD)"
+            },
+            "consciousness_disorder": {
+              "type": "boolean",
+              "description": "意識障害の有無"
+            },
+            "other": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "has_epilepsy",
+            "seizure_type",
+            "frequency",
+            "last_seizure",
+            "consciousness_disorder",
+            "other"
+          ]
+        },
+        "substance_use": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "(9) 精神作用物質の利用・依存: アルコール, 覚醒剤, 有機溶媒, その他"
+        },
+        "cognitive_learning": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "(10) 知能・記憶・学習の障害: 知的障害(軽度/中等度/重度), 認知症, その他の記憶障害, 学習の困難, 遂行機能障害, 注意障害, その他"
+        },
+        "developmental": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "(11) 広汎性発達障害関連症状: 持続的な社会関係の質的障害, コミュニケーションのパターンにおける質的障害, 限定した常同的で反復的な関心と行動, その他"
+        },
+        "other": {
+          "type": "string",
+          "description": "(12) その他"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "manic_state",
+        "depressive_state",
+        "hallucination_delusion",
+        "cognitive_decline",
+        "personality_behavior",
+        "emotion_behavior",
+        "anxiety_neurosis",
+        "epilepsy",
+        "substance_use",
+        "cognitive_learning",
+        "developmental",
+        "other"
+      ]
+    },
+    "condition_detail": {
+      "type": "string",
+      "description": "４ ３の病状・状態像の具体的程度、症状、処方薬等（現在の病状が日常生活への影響を含め具体的に記載）"
+    },
+    "treatment": {
+      "type": "object",
+      "description": "５ 現在の治療内容",
+      "properties": {
+        "medications": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "薬剤名（一般名または製品名で日本語記載）"
+              },
+              "dosage": {
+                "type": "string",
+                "description": "用量"
+              },
+              "frequency": {
+                "type": "string",
+                "description": "用法"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "name",
+              "dosage",
+              "frequency"
+            ]
+          },
+          "description": "(1) 処方内容（診断書に対する主たる薬名を日本語で記載。点滴・注射含む）"
+        },
+        "psychotherapy": {
+          "type": "string",
+          "description": "(2) 精神療法等（医学的観点から精神的な通院治療の必要性がわかるよう具体的に記載）"
+        },
+        "designated_doctor": {
+          "type": "string",
+          "enum": [
+            "有",
+            "無"
+          ],
+          "description": "(3) 精神保健指定医の有無"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "medications",
+        "psychotherapy",
+        "designated_doctor"
+      ]
+    },
+    "treatment_plan": {
+      "type": "string",
+      "description": "６ 今後の治療方針（治療目標を含め、継続的に行っている治療方法を具体的に記載。再発予防の視点から継続的な通院治療の必要性も）"
+    },
+    "welfare_services": {
+      "type": "object",
+      "description": "７ 現在の障害福祉サービス等の利用状況",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "居宅介護",
+              "共同生活援助",
+              "居宅介護",
+              "その他の障害福祉サービス",
+              "精神科訪問看護",
+              "なし"
+            ]
+          },
+          "description": "利用中のサービス"
+        },
+        "other_detail": {
+          "type": "string",
+          "description": "その他の障害福祉サービスの詳細"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "items",
+        "other_detail"
+      ]
+    },
+    "remarks": {
+      "type": "string",
+      "description": "８ 備考（精神障害に伴う自傷管理能力の障害の程度等）"
+    },
+    "institution": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string",
+          "description": "医療機関コード（7桁）"
+        },
+        "name": {
+          "type": "string",
+          "description": "医療機関名"
+        },
+        "address": {
+          "type": "string",
+          "description": "医療機関所在地"
+        },
+        "phone": {
+          "type": "string",
+          "description": "電話番号"
+        },
+        "doctor": {
+          "type": "string",
+          "description": "医師氏名"
+        },
+        "designated_doctor": {
+          "type": "boolean",
+          "description": "精神保健指定医かどうか"
+        },
+        "doctor_years": {
+          "type": "integer",
+          "description": "精神科従事年数（指定医でない場合）"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "name",
+        "address",
+        "phone",
+        "doctor",
+        "designated_doctor",
+        "doctor_years"
+      ]
+    },
+    "heavy_continuous": {
+      "type": "object",
+      "description": "重度かつ継続の判定",
+      "properties": {
+        "applicable": {
+          "type": "boolean",
+          "description": "該当するか"
+        },
+        "reason": {
+          "type": "string",
+          "description": "該当理由: ICD-10コードF0-F3/G40に該当、またはF4-F9で3年以上の精神科従事医師による診断"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "applicable",
+        "reason"
+      ]
+    }
+  },
+  "additionalProperties": false
+}

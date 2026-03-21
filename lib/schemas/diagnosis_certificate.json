@@ -1,0 +1,141 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "診断書",
+  "type": "object",
+  "required": [
+    "date",
+    "institution",
+    "department",
+    "doctor",
+    "institution_address",
+    "institution_phone",
+    "patient",
+    "diagnosis",
+    "onset_date",
+    "symptoms",
+    "treatment",
+    "prognosis",
+    "work_restriction",
+    "purpose",
+    "remarks"
+  ],
+  "properties": {
+    "date": {
+      "type": "string",
+      "description": "作成日 (YYYY-MM-DD)"
+    },
+    "institution": {
+      "type": "string",
+      "description": "医療機関名"
+    },
+    "department": {
+      "type": "string",
+      "description": "診療科"
+    },
+    "doctor": {
+      "type": "string",
+      "description": "医師名"
+    },
+    "institution_address": {
+      "type": "string",
+      "description": "医療機関住所"
+    },
+    "institution_phone": {
+      "type": "string",
+      "description": "医療機関電話番号"
+    },
+    "patient": {
+      "type": "object",
+      "required": [
+        "name",
+        "birthdate",
+        "sex",
+        "age",
+        "address"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "患者氏名"
+        },
+        "birthdate": {
+          "type": "string",
+          "description": "生年月日 (YYYY-MM-DD)"
+        },
+        "sex": {
+          "type": "string",
+          "enum": [
+            "男",
+            "女"
+          ],
+          "description": "性別"
+        },
+        "age": {
+          "type": "integer",
+          "description": "年齢"
+        },
+        "address": {
+          "type": "string",
+          "description": "患者住所"
+        }
+      },
+      "additionalProperties": false
+    },
+    "diagnosis": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "病名"
+    },
+    "onset_date": {
+      "type": "string",
+      "description": "発症日または初診日"
+    },
+    "symptoms": {
+      "type": "string",
+      "description": "症状の経過"
+    },
+    "treatment": {
+      "type": "string",
+      "description": "治療内容"
+    },
+    "prognosis": {
+      "type": "string",
+      "description": "今後の見通し"
+    },
+    "work_restriction": {
+      "type": "object",
+      "properties": {
+        "needs_rest": {
+          "type": "boolean",
+          "description": "休業の必要性"
+        },
+        "rest_period": {
+          "type": "string",
+          "description": "休業期間"
+        },
+        "restrictions": {
+          "type": "string",
+          "description": "就労制限事項"
+        }
+      },
+      "description": "就労に関する意見",
+      "additionalProperties": false,
+      "required": [
+        "needs_rest",
+        "rest_period",
+        "restrictions"
+      ]
+    },
+    "purpose": {
+      "type": "string",
+      "description": "診断書の用途（保険会社提出用、職場提出用など）"
+    },
+    "remarks": {
+      "type": "string",
+      "description": "備考"
+    }
+  },
+  "additionalProperties": false
+}

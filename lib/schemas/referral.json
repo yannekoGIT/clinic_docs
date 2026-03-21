@@ -1,0 +1,141 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "紹介状（診療情報提供書）",
+  "type": "object",
+  "required": [
+    "date",
+    "to_institution",
+    "to_department",
+    "to_doctor",
+    "from_institution",
+    "from_department",
+    "from_doctor",
+    "from_address",
+    "from_phone",
+    "patient",
+    "diagnosis",
+    "clinical_course",
+    "current_medications",
+    "test_results",
+    "purpose",
+    "remarks"
+  ],
+  "properties": {
+    "date": {
+      "type": "string",
+      "description": "作成日 (YYYY-MM-DD)"
+    },
+    "to_institution": {
+      "type": "string",
+      "description": "紹介先医療機関名"
+    },
+    "to_department": {
+      "type": "string",
+      "description": "紹介先診療科"
+    },
+    "to_doctor": {
+      "type": "string",
+      "description": "紹介先医師名（不明な場合は「御担当医』）"
+    },
+    "from_institution": {
+      "type": "string",
+      "description": "紹介元医療機関名"
+    },
+    "from_department": {
+      "type": "string",
+      "description": "紹介元診療科"
+    },
+    "from_doctor": {
+      "type": "string",
+      "description": "紹介元医師名"
+    },
+    "from_address": {
+      "type": "string",
+      "description": "紹介元住所"
+    },
+    "from_phone": {
+      "type": "string",
+      "description": "紹介元電話番号"
+    },
+    "patient": {
+      "type": "object",
+      "required": [
+        "name",
+        "birthdate",
+        "sex",
+        "age"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "患者氏名"
+        },
+        "birthdate": {
+          "type": "string",
+          "description": "生年月日 (YYYY-MM-DD)"
+        },
+        "sex": {
+          "type": "string",
+          "enum": [
+            "男",
+            "女"
+          ],
+          "description": "性別"
+        },
+        "age": {
+          "type": "integer",
+          "description": "年齢"
+        }
+      },
+      "additionalProperties": false
+    },
+    "diagnosis": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "傷病名（リスト）"
+    },
+    "clinical_course": {
+      "type": "string",
+      "description": "症状経過および治療経過"
+    },
+    "current_medications": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "dosage": {
+            "type": "string"
+          },
+          "frequency": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "dosage",
+          "frequency"
+        ]
+      },
+      "description": "現在の処方薬"
+    },
+    "test_results": {
+      "type": "string",
+      "description": "検査結果（主要なもの）"
+    },
+    "purpose": {
+      "type": "string",
+      "description": "紹介目的"
+    },
+    "remarks": {
+      "type": "string",
+      "description": "備考"
+    }
+  },
+  "additionalProperties": false
+}

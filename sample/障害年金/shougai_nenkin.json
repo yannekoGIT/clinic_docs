@@ -1,0 +1,152 @@
+{
+  "date": "2026-03-18",
+  "patient": {
+    "name": "",
+    "birthdate": "",
+    "sex": "",
+    "address": ""
+  },
+  "diagnosis": {
+    "disease_name": "統合失調症",
+    "icd_code": "F20.0",
+    "onset_date": "2008-06-01",
+    "onset_source": "診療録で確認",
+    "occupation_at_onset": "会社員"
+  },
+  "first_visit": {
+    "date": "2008-10-14",
+    "source": "診療録で確認"
+  },
+  "existing_disability": "なし",
+  "prior_illness": "なし",
+  "remission": {
+    "remission_date": "",
+    "confirmed_or_estimated": "",
+    "prognosis_outlook": "無"
+  },
+  "history": {
+    "informant_name": "佐藤 美子",
+    "informant_relationship": "母",
+    "interview_date": "2026-03-09",
+    "narrative": "高校卒業後、いくつかの職を経て、現在の会社に就職。自宅で両親と生活していた。\n平成20年6月頃から人目が気になるようになり、欠勤しがちとなった。その後、不眠、幻声、思考化声、被害妄想が出現し、平成20年10月14日に○○駅前メンタルクリニックを受診し、同日当院に紹介入院した。以降、薬物療法、精神療法が定期的に継続されている。\n幻覚妄想は薬物療法により概ね消退しているが、残遺症状として感情の平板化、意欲低下が持続している。3回目の入院中に夫婦関係が破綻。現在は単身で生活。日常生活は支援なしには成り立たない。"
+  },
+  "initial_findings": {
+    "first_visit_date": "2008-10-14",
+    "findings": "「死ね」「太っている」という悪口が聞こえる、人目が気になる、音が気になる、考えたことが声になって聞こえる、夜中に霊が来て眠れない、常に身構えてしまう、といった訴えが聞かれた。問診に的外れな回答をしたり、ひとりで勝手に話したり、非現実的な内容の発言があった。"
+  },
+  "development_history": {
+    "development": "特記すべきことなし。",
+    "education": {
+      "level": "普通学級・高校卒業",
+      "detail": ""
+    },
+    "work_history": "会社員。発病後は就労できていない。",
+    "treatment_history": [
+      {
+        "institution": "△△病院",
+        "period_from": "2008-10",
+        "period_to": "2008-10",
+        "inpatient_outpatient": "入院",
+        "disease_name": "統合失調症",
+        "treatment": "薬物治療、精神療法",
+        "outcome": "軽快"
+      },
+      {
+        "institution": "○○駅前メンタルクリニック",
+        "period_from": "2008-11",
+        "period_to": "2021-05",
+        "inpatient_outpatient": "外来",
+        "disease_name": "統合失調症",
+        "treatment": "薬物治療、精神療法",
+        "outcome": "悪化"
+      },
+      {
+        "institution": "△△病院",
+        "period_from": "2021-05",
+        "period_to": "2021-12",
+        "inpatient_outpatient": "入院",
+        "disease_name": "統合失調症",
+        "treatment": "薬物治療、精神療法",
+        "outcome": "軽快"
+      },
+      {
+        "institution": "○○駅前メンタルクリニック",
+        "period_from": "2022-01",
+        "period_to": "2023-11",
+        "inpatient_outpatient": "外来",
+        "disease_name": "統合失調症",
+        "treatment": "薬物治療、精神療法",
+        "outcome": "悪化"
+      },
+      {
+        "institution": "△△病院",
+        "period_from": "2023-11",
+        "period_to": "",
+        "inpatient_outpatient": "入院",
+        "disease_name": "統合失調症",
+        "treatment": "薬物治療、精神療法",
+        "outcome": "不変"
+      }
+    ]
+  },
+  "disability_state": {
+    "assessment_date": "2026-03-18",
+    "previous_comparison": "悪化している",
+    "symptom_checklist": {
+      "delusion": [],
+      "mood_state": [],
+      "hallucination_delusion": ["幻覚", "妄想"],
+      "psychomotor": [],
+      "residual_state": ["自閉", "感情の平板化", "意欲の減退"],
+      "consciousness": [],
+      "epilepsy_detail": {},
+      "intellectual": {
+        "intellectual_disability": "",
+        "dementia": "",
+        "other": []
+      },
+      "developmental_disorder": [],
+      "personality_change": { "items": ["無関心", "無為"] },
+      "substance_use": { "substance": "", "items": [] },
+      "other": ""
+    },
+    "detail_description": "易怒性・衝動性が認められ、いまだ病的な体験が活発化して、実世界での事象・人物に対してまで怒りっぽく当たり、ときに暴言の逸脱に至ることがある。\n病識はうすく、思考は妄覚妄想に左右されている。病気や治療・看護に関しても、日常生活や身体介助・介護についても現実的な認識がない。\n幻覚妄想状態は薬物療法により一部軽減しているが、常時独語や空笑がみられ、診察時も一方的に減裂した話を続けることがある。\n感情の平板化が顕著で、自発的な活動は見られない。意欲は平板化しており、意思疎通は困難である。社会的には孤立。他者との交流はほとんどない。\n\nRp:\n① クロザピン錠(100mg) 1日5錠\n② ロラゼパム錠(1mg) 1日2錠\n③ ブロチゾラムOD錠0.25mg 1日1錠",
+    "daily_living": {
+      "living_situation": "入院",
+      "living_detail": "△△病院",
+      "cohabitant": "無",
+      "social_situation": "意思疎通は困難で、他者との交流はほとんどない。日常生活全般で精神状態が不安定であり、身体的介護も含め常時の看護を要する。",
+      "daily_assessment": {
+        "eating": 4,
+        "hygiene": 3,
+        "money": 4,
+        "medication": 4,
+        "communication": 4,
+        "safety": 3,
+        "social": 4
+      },
+      "daily_living_level": 5
+    },
+    "employment": {
+      "workplace": "その他（現在は就労していない）",
+      "employment_type": "",
+      "tenure": "",
+      "work_frequency": "",
+      "monthly_income": "",
+      "work_content": "",
+      "support_at_work": "現在は就労していない。"
+    },
+    "physical_findings": "特記すべきことなし",
+    "clinical_tests": "特記すべきことなし",
+    "welfare_services": "入院中につき利用なし"
+  },
+  "daily_ability_and_labor": "入院中であり、日常生活全般において常時の看護・介助を要する。自発的な行動は乏しく、身のまわりのことも単独では行えない。労働能力は全くない。",
+  "prognosis": "長期の経過で寛解と増悪を繰り返しており、今後も同様の経過が予想される。薬物療法の継続が不可欠であるが、完全寛解は困難と考える。",
+  "remarks_13": "",
+  "institution": {
+    "name": "なごみクリニック",
+    "department": "精神科",
+    "address": "東京都〇〇区〇〇 1-2-3",
+    "doctor": "山田 和男"
+  }
+}
