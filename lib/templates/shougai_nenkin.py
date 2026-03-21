@@ -17,9 +17,17 @@ def main():
     fill_template(data, sys.argv[2])
     print(f"生成完了: {sys.argv[2]}")
 
-def s(ws, cell_ref, value):
-    """セルに値を書き込む（xlwings経由。フォーマット完全保持）"""
-    ws.range(cell_ref).value = value
+def s(ws, cell_ref, value, shrink=False):
+    """セルに値を書き込む（xlwings経由。フォーマット完全保持）
+    shrink=True: 枠に合わせてフォントサイズを自動縮小（縮小して全体を表示）
+    """
+    cell = ws.range(cell_ref)
+    # リテラル "\n" がテキストに含まれる場合、実際の改行に変換
+    if isinstance(value, str):
+        value = value.replace("\\n", "\n")
+    cell.value = value
+    if shrink:
+        cell.api.ShrinkToFit = True
 
 def fill_template(data, output_path):
     abs_output = os.path.abspath(output_path)
@@ -77,7 +85,7 @@ def fill_template(data, output_path):
         if om: s(ws, "BH20", om)
         if od: s(ws, "BM20", od)
         if diag.get("occupation_at_onset"):
-            s(ws, "CO20", diag["occupation_at_onset"])
+            s(ws, "CO20", diag["occupation_at_onset"], shrink=True)
 
         # ======== ③ 初診日 ========
         fv_date = fv.get("date", "")
