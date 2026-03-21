@@ -68,12 +68,11 @@ def validate_json(data, schema_path):
 #           "python" = Python で公式テンプレート(xls/xlsx)に書き込み
 DOC_TYPES = {
     "referral": {
-        "name": "紹介状",
+        "name": "紹介状（診療情報提供書）",
         "prompt_file": "lib/prompts/referral.txt",
-        "template_js": "lib/templates/referral.js",
         "schema_file": "lib/schemas/referral.json",
-        "renderer": "nodejs",
-        "output_ext": ".docx",
+        "renderer": "direct_text",
+        "output_ext": ".txt",
     },
     "diagnosis": {
         "name": "診断書",
@@ -155,12 +154,26 @@ def karte_to_json(doc_type, karte_text, config):
     prompt = prompt.replace("{char_limits}", char_limits_text)
 
     # カスタムプロンプトを追加（config.json の custom_prompt から）
-    custom_key = doc_type.replace("_word", "")
+    custom_key = doc_type.replace("_word", "").replace("_docx", "")
     custom = config.get("custom_prompt", {}).get(custom_key, "")
     if custom:
-        prompt += f"\n\n## 追加指示\n{custom}\n"
+        custom_block = f"\n## 追加指示\n{custom}\n"
+    else:
+        custom_block = ""
+    # {custom_instructions} プレースホルダーがあればそこに挿入、なければ末尾に追加
+    if "{custom_instructions}" in prompt:
+        prompt = prompt.replace("{custom_instructions}", custom_block)
+    elif custom_block:
+        prompt += "\n" + custom_block
 
-    # Codex CLI使用時はスキーマを渡して構造化出力を強制
+    # direct_text モード: LLM出力をそのままテキストとして返す（JSON変換しない）
+    renderer = type_info.get("renderer", "")
+    if renderer == "direct_text":
+        print(f"[INFO] LLMにカルテ情報を送信中... ({config['llm']['provider']})")
+        response = call_llm(prompt, config=config)
+        return {"_raw_text": response.strip()}
+
+    # JSON出力モード: Codex CLI使用時はスキーマを渡して構造化出力を強制
     schema_path = ROOT / type_info["schema_file"]
     print(f"[INFO] LLMにカルテ情報を送信中... ({config['llm']['provider']})")
     response = call_llm(prompt, config=config,
@@ -208,14 +221,29 @@ def check_node_available():
 
 
 def json_to_document(doc_type, json_data, output_path):
-    """JSONから書類を生成（書類タイプに応じてNode.jsまたはPythonを呼び出し）"""
+    """JSONから書類を生成（書類タイプに応じてNode.js、Python、またはテキスト直接出力）"""
     type_info = DOC_TYPES[doc_type]
     renderer = type_info.get("renderer", "nodejs")
 
-    if renderer == "python":
+    if renderer == "direct_text":
+        return _save_direct_text(json_data, output_path)
+    elif renderer == "python":
         return _json_to_template_py(doc_type, json_data, output_path)
     else:
         return _json_to_docx_nodejs(doc_type, json_data, output_path)
+
+
+def _save_direct_text(data, output_path):
+    """LLMの生テキスト出力をそのままファイルに保存"""
+    text = data.get("_raw_text", "")
+    if not text:
+        print("[ERROR] テキスト出力が空です", file=sys.stderr)
+        return False
+    output_path = Path(output_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, "w", encoding="utf-8") as f:
+        f.write(text)
+    return True
 
 
 def _json_to_template_py(doc_type, json_data, output_path):
@@ -498,26 +526,28 @@ def main():
         except CodexAuthError as e:
             print(f"\n[ERROR] {e}", file=sys.stderr)
             sys.exit(3)
-        print("[INFO] JSON変換完了")
+        print("[INFO] LLM処理完了")
 
-        # 中間JSON保存
-        if args.save_json:
+        # 中間JSON保存（direct_textモード以外）
+        if args.save_json and "_raw_text" not in json_data:
             json_path = output_path.with_suffix(".json")
             with open(json_path, "w", encoding="utf-8") as f:
                 json.dump(json_data, f, ensure_ascii=False, indent=2)
             print(f"[INFO] JSON保存: {json_path}")
 
-    # スキーマバリデーション
-    schema_path = ROOT / type_info["schema_file"]
-    if schema_path.exists():
-        errors = validate_json(json_data, schema_path)
-        if errors:
-            print("[WARN] JSONバリデーション警告:", file=sys.stderr)
-            for e in errors:
-                print(f"  - {e}", file=sys.stderr)
-            print("[INFO] 警告がありますが、docx生成を続行します")
-        else:
-            print("[INFO] JSONバリデーション OK")
+    # スキーマバリデーション（direct_textモードではスキップ）
+    renderer = type_info.get("renderer", "")
+    if renderer != "direct_text":
+        schema_path = ROOT / type_info["schema_file"]
+        if schema_path.exists():
+            errors = validate_json(json_data, schema_path)
+            if errors:
+                print("[WARN] JSONバリデーション警告:", file=sys.stderr)
+                for e in errors:
+                    print(f"  - {e}", file=sys.stderr)
+                print("[INFO] 警告がありますが、生成を続行します")
+            else:
+                print("[INFO] JSONバリデーション OK")
 
     # プレビュー表示
     if args.preview:

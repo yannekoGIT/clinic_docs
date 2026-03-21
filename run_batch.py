@@ -137,8 +137,8 @@ def main():
 
     doc_type = args.doc_type
     type_info = DOC_TYPES[doc_type]
-    # jiritsu_shien_word は jiritsu_shien と同じ入力フォルダを使用
-    input_folder = doc_type.replace("_word", "")
+    # 派生タイプは元タイプと同じ入力フォルダを使用
+    input_folder = doc_type.replace("_word", "").replace("_docx", "")
     input_dir = ROOT / "input" / input_folder
 
     # フォルダ準備
