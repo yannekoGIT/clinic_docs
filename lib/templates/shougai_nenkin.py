@@ -4,6 +4,7 @@
 Usage: python shougai_nenkin.py <input.json> <output.xlsx>
 """
 import sys, json, os, shutil, platform
+from datetime import date
 import xlwings as xw
 
 IS_MAC = platform.system() == "Darwin"
@@ -63,12 +64,6 @@ def fill_template(data, output_path):
         emp = ds.get("employment", {})
         ins = data.get("institution", {})
         ins = _merge_clinic_defaults(ins)
-
-        # ======== ヘッダー: 「精」に○（図形で囲む） ========
-        try:
-            _add_circle_around_cell(ws, "H3")
-        except Exception:
-            pass  # Mac版で図形APIが異なる場合はスキップ
 
         # ======== 患者基本情報 ========
         _fill_patient_info(ws, pt, data.get("date", ""))
@@ -214,14 +209,14 @@ def fill_template(data, output_path):
             s(ws, "T225", data["remarks_13"])
 
         # ======== 署名欄 ========
-        if data.get("date"):
-            dy, dm, dd = _ymd(data["date"])
-            if dy:
-                era = _era(dy)
-                year_text = _era_year(dy)
-                s(ws, "AN233", f"{era} {year_text}" if era else year_text)
-            if dm: s(ws, "AW233", dm)
-            if dd: s(ws, "BB233", dd)
+        today = date.today()
+        today_str = today.strftime("%Y-%m-%d")
+        dy, dm, dd = _ymd(today_str)
+        era_sign = _era(dy)
+        year_text = _era_year(dy)
+        s(ws, "AN233", f"{era_sign} {year_text}" if era_sign else year_text)
+        s(ws, "AW233", dm)
+        s(ws, "BB233", dd)
         if ins.get("name"):
             s(ws, "Z235", ins["name"])
         if ins.get("department"):

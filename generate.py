@@ -351,8 +351,43 @@ def _json_to_docx_nodejs(doc_type, json_data, output_path):
 json_to_docx = json_to_document
 
 
-def run_setup_check(config_path):
-    """環境セットアップを検証し、結果を表示"""
+def _run_install(cmd, label):
+    """インストールコマンドを実行し、成否を返す"""
+    print(f"      → {label} を実行中...")
+    result = subprocess.run(cmd, capture_output=True, text=True)
+    if result.returncode == 0:
+        print(f"      → {label} 完了")
+        return True
+    else:
+        print(f"      → {label} 失敗:")
+        if result.stderr:
+            for line in result.stderr.strip().splitlines()[:5]:
+                print(f"        {line}")
+        return False
+
+
+def _check_pip_packages():
+    """requirements.txt の各パッケージがインポート可能か確認し、不足リストを返す"""
+    req_file = ROOT / "requirements.txt"
+    if not req_file.exists():
+        return []
+    # パッケージ名→importモジュール名のマッピング（異なる場合のみ）
+    import_map = {"python-docx": "docx"}
+    missing = []
+    for line in req_file.read_text(encoding="utf-8").splitlines():
+        pkg = line.strip()
+        if not pkg or pkg.startswith("#"):
+            continue
+        mod = import_map.get(pkg, pkg.replace("-", "_"))
+        try:
+            __import__(mod)
+        except ImportError:
+            missing.append(pkg)
+    return missing
+
+
+def run_setup_check(config_path, auto_install=False):
+    """環境セットアップを検証し、結果を表示。auto_install=True で不足分を自動インストール"""
     print("=== 環境セットアップ検証 ===\n")
     ok = True
 
@@ -370,26 +405,58 @@ def run_setup_check(config_path):
     if empty_fields:
         print(f"[WARN] config.json のクリニック情報が未設定: {', '.join(empty_fields)}")
         print("       → config.json の clinic セクションを編集してください")
-        ok = False
     else:
         print("[OK] クリニック情報 設定済み")
 
-    # 3. Node.js
-    if shutil.which("node"):
+    # 3. Node.js（bat側でインストール済みのはずだが念のため確認）
+    node_ok = bool(shutil.which("node"))
+    if node_ok:
         result = subprocess.run(["node", "--version"], capture_output=True, text=True)
         print(f"[OK] Node.js {result.stdout.strip()}")
     else:
-        print("[NG] Node.js が見つかりません → https://nodejs.org/ からインストール")
+        print("[NG] Node.js が見つかりません")
         ok = False
 
-    # 4. npm dependencies
+    # 4. npm依存パッケージ
     if (ROOT / "node_modules" / "docx").exists():
         print("[OK] npm依存パッケージ (docx) インストール済み")
+    elif node_ok and auto_install:
+        print("[..] npm依存パッケージ未インストール ― 自動インストール中...")
+        if _run_install(["npm", "install", "--prefix", str(ROOT)], "npm install"):
+            print("[OK] npm依存パッケージ インストール完了")
+        else:
+            print("[NG] npm install に失敗しました")
+            ok = False
     else:
         print("[NG] npm依存パッケージ未インストール → npm install を実行してください")
         ok = False
 
-    # 5. LLMプロバイダー
+    # 5. Python依存パッケージ
+    missing_pip = _check_pip_packages()
+    if not missing_pip:
+        print("[OK] Python依存パッケージ すべてインストール済み")
+    elif auto_install:
+        print(f"[..] Python依存パッケージ不足: {', '.join(missing_pip)} ― 自動インストール中...")
+        if _run_install(
+            [sys.executable, "-m", "pip", "install", "-r", str(ROOT / "requirements.txt")],
+            "pip install -r requirements.txt",
+        ):
+            # 再チェック
+            still_missing = _check_pip_packages()
+            if not still_missing:
+                print("[OK] Python依存パッケージ インストール完了")
+            else:
+                print(f"[NG] インストール後も不足: {', '.join(still_missing)}")
+                ok = False
+        else:
+            print("[NG] pip install に失敗しました")
+            ok = False
+    else:
+        print(f"[NG] Python依存パッケージ不足: {', '.join(missing_pip)}")
+        print("     → pip install -r requirements.txt を実行してください")
+        ok = False
+
+    # 6. LLMプロバイダー
     provider = config["llm"]["provider"]
     print(f"\n--- LLMプロバイダー: {provider} ---")
 
@@ -414,16 +481,17 @@ def run_setup_check(config_path):
         if settings.get("api_key"):
             print("[OK] APIキー 設定済み")
         elif provider == "local":
-            print("[INFO] ローカルLLM — APIキー不要（サーバー起動を確認してください）")
+            print("[INFO] ローカルLLM ― APIキー不要（サーバー起動を確認してください）")
         else:
             print("[NG] APIキーが未設定 → 環境変数を確認してください")
             ok = False
 
-    # 6. テンプレートファイル
+    # 7. テンプレートファイル
     missing = []
     for key, info in DOC_TYPES.items():
         template_key = "template_py" if info.get("renderer") == "python" else "template_js"
-        for fkey in ("prompt_file", template_key, "schema_file"):
+        check_keys = [k for k in ("prompt_file", template_key, "schema_file") if k in info]
+        for fkey in check_keys:
             p = ROOT / info[fkey]
             if not p.exists():
                 missing.append(str(p))
@@ -435,7 +503,7 @@ def run_setup_check(config_path):
 
     print()
     if ok:
-        print("全チェック通過 — 利用可能です。")
+        print("全チェック通過 ― 利用可能です。")
     else:
         print("上記の [NG] / [WARN] 項目を解決してください。")
 
@@ -459,12 +527,14 @@ def main():
                         help="JSON生成後にプレビュー表示し、docx生成前に確認する")
     parser.add_argument("--check", action="store_true",
                         help="環境セットアップを検証して終了（書類生成しない）")
+    parser.add_argument("--auto-install", action="store_true",
+                        help="--check 時に不足パッケージを自動インストール")
 
     args = parser.parse_args()
 
     # --check: 環境検証モード
     if args.check:
-        run_setup_check(args.config)
+        run_setup_check(args.config, auto_install=args.auto_install)
         sys.exit(0)
 
     # doc_type は --check 以外では必須

@@ -1,8 +1,8 @@
 @echo off
 echo.
 echo =============================================
-echo   Ž©—§Žx‰‡ˆã—Ãf’f‘i¸_’Ê‰@ˆã—Ã—pjì¬
-echo   Word”Åi.docxj‚Å¶¬‚µ‚Ü‚·
+echo   ï¿½ï¿½ï¿½ï¿½ï¿½xï¿½ï¿½ï¿½ï¿½Ãfï¿½fï¿½ï¿½ï¿½iï¿½ï¿½ï¿½_ï¿½Ê‰@ï¿½ï¿½Ã—pï¿½jï¿½ì¬
+echo   Wordï¿½Åi.docxï¿½jï¿½Åï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ü‚ï¿½
 echo =============================================
 echo.
 cd /d "%~dp0"
@@ -12,18 +12,18 @@ if "%1"=="--check" (
     pause
     exit /b
 )
-where python >/dev/null 2>&1
+where python >nul 2>&1
 if %ERRORLEVEL% NEQ 0 (
-    echo [ERROR] Python ‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñB
+    echo [ERROR] Python ï¿½ï¿½ï¿½ï¿½ï¿½Â‚ï¿½ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½B
     pause
     exit /b 1
 )
 python run_batch.py jiritsu_shien_word %*
 echo.
 if %ERRORLEVEL% EQU 0 (
-    echo o—Íæ: output ƒtƒHƒ‹ƒ_‚ðŠm”F‚µ‚Ä‚­‚¾‚³‚¢B
+    echo ï¿½oï¿½Íï¿½: output ï¿½tï¿½Hï¿½ï¿½ï¿½_ï¿½ï¿½ï¿½mï¿½Fï¿½ï¿½ï¿½Ä‚ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½B
 ) else (
-    echo ƒGƒ‰[‚ª”­¶‚µ‚Ü‚µ‚½B
+    echo ï¿½Gï¿½ï¿½ï¿½[ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½ï¿½B
 )
 echo.
 pause

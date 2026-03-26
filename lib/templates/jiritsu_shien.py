@@ -60,6 +60,8 @@ def fill_template(data, output_path):
         # (1) 主たる精神障害: 結合セル (26,36)-(28,54)
         if data.get("diagnosis_main"):
             _w(ws, 26, 36, data["diagnosis_main"])
+        # ICDコードラベルの位置補正（中央揃え）
+        ws.range((27, 56)).api.HorizontalAlignment = -4108  # xlCenter
         # ICDコードはラベル右側の記入欄に書く
         if data.get("icd_code_main"):
             _write_boxed_text(ws, 27, 65, data["icd_code_main"])
