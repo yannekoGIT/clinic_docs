@@ -103,11 +103,8 @@ def fill_template(data, output_path):
         psych = treat.get("psychotherapy", "")
         designated = treat.get("designated_doctor", "")
 
-        # 訪問看護指示: テンプレートは「有　・　無」形式。選択側に○をつける
-        if designated == "有":
-            nursing_text = "（３）訪問看護指示の有無（　○有　・　無　）"
-        else:
-            nursing_text = "（３）訪問看護指示の有無（　有　・　○無　）"
+        # 訪問看護指示: テキストは中立のまま書き込み、図形の○で選択を示す
+        nursing_text = "（３）訪問看護指示の有無（　有　・　無　）"
 
         treat_text = (
             " ５　現在の治療内容\n"
@@ -118,6 +115,10 @@ def fill_template(data, output_path):
             f"{nursing_text}"
         )
         _w(ws, 132, 4, treat_text)
+
+        # 有/無 に図形の○を配置
+        nursing_target = "有" if designated == "有" else "無"
+        _circle_in_treatment_cell(ws, 132, 4, treat_text, nursing_target)
 
         # ---- ６ 今後の治療方針 ----
         # 結合セル $E$168:$CD$177 → top-left (168, 5)
@@ -191,6 +192,141 @@ def _write_footer_doctor(ws, doctor):
     target.value = doctor
 
 
+# ============================================================
+# 図形の○（シェイプ）ヘルパー — テキスト非変更で選択肢を囲む
+# フォントサイズから文字幅を直接計算して位置を決定する
+# ============================================================
+
+# セル左端のインデント（pt）
+_CELL_MARGIN = 2
+
+
+def _add_circle_shape(ws, left, top, width, height):
+    """透明な楕円図形（○マーク）を追加。赤色で視認性を確保。"""
+    shape = ws.api.Shapes.AddShape(9, left, top, width, height)  # 9 = msoShapeOval
+    shape.Fill.Visible = 0  # 透明
+    shape.Line.ForeColor.RGB = 255  # 赤
+    shape.Line.Weight = 1.5
+    return shape
+
+
+def _get_font_size(ws, row, col):
+    """セルのフォントサイズ（pt）を取得"""
+    try:
+        size = ws.range((row, col)).api.Font.Size
+        return size if size and size > 0 else 11
+    except Exception:
+        return 11
+
+
+def _text_width_pt(text, char_w):
+    """テキストのポイント幅を推定（全角=char_w, 半角=char_w/2）"""
+    w = 0.0
+    for ch in text:
+        cp = ord(ch)
+        if cp <= 0x7E or (0xFF61 <= cp <= 0xFF9F):
+            w += char_w * 0.5
+        else:
+            w += char_w
+    return w
+
+
+def _circle_item_in_cell(ws, row, col, item_text, include_number=True):
+    """結合セル内のテキストを探し、番号ごと図形の○で囲む。
+
+    フォントサイズから文字幅を計算し、セル左端からの絶対位置で配置。
+    テンプレート文字列を変更せず、図形を上に重ねるだけなので
+    Excel上で図形を移動・削除するだけで修正できる。
+    """
+    cell = ws.range((row, col))
+    cell_text = str(cell.value or "")
+    idx = cell_text.find(item_text)
+    if idx < 0:
+        return
+
+    target_start = idx
+    target_end = idx + len(item_text)
+
+    # 番号プレフィックスを含める（例: "（１）思考..." → "（１）" 部分も囲む）
+    if include_number and idx > 0:
+        i = idx - 1
+        while i >= 0 and cell_text[i] in ' \u3000':
+            i -= 1
+        if i >= 0:
+            j = i
+            while j > 0 and cell_text[j - 1] not in ' \u3000':
+                j -= 1
+            target_start = j
+
+    ma = cell.api.MergeArea
+    cell_left = ma.Left
+    cell_top = ma.Top
+    cell_height = ma.Height
+
+    char_w = _get_font_size(ws, row, col)
+    x_offset = _text_width_pt(cell_text[:target_start], char_w)
+    x_width = _text_width_pt(cell_text[target_start:target_end], char_w)
+
+    pad_x, pad_y = 3, 2
+    _add_circle_shape(
+        ws,
+        cell_left + _CELL_MARGIN + x_offset - pad_x,
+        cell_top - pad_y,
+        x_width + 2 * pad_x,
+        cell_height + 2 * pad_y
+    )
+
+
+def _circle_in_treatment_cell(ws, row, col, full_text, target):
+    """治療内容セル（複数行）内の「有」または「無」に図形の○を配置。
+
+    改行で行を分割し、フォントサイズから垂直・水平位置を計算して配置する。
+    """
+    lines = full_text.split('\n')
+    target_line_idx = None
+    target_line = ""
+    for i, line in enumerate(lines):
+        if target in line:
+            target_line_idx = i
+            target_line = line
+
+    if target_line_idx is None:
+        return
+
+    cell = ws.range((row, col))
+    ma = cell.api.MergeArea
+    cell_left = ma.Left
+    cell_top = ma.Top
+
+    char_w = _get_font_size(ws, row, col)
+
+    # 「　有　」「　無　」のように全角スペースで囲まれた文字を探す
+    search = f"\u3000{target}\u3000"
+    search_idx = target_line.find(search)
+    if search_idx >= 0:
+        char_idx = search_idx + 1
+    else:
+        char_idx = target_line.rfind(target)
+    if char_idx < 0:
+        return
+
+    x_offset = _text_width_pt(target_line[:char_idx], char_w)
+    x_width = _text_width_pt(target, char_w)
+
+    line_height = char_w * 1.3
+    y = cell_top + target_line_idx * line_height
+    h = line_height
+
+    pad = 5
+    _add_circle_shape(
+        ws,
+        cell_left + _CELL_MARGIN + x_offset - pad,
+        y,
+        x_width + 2 * pad,
+        h + 2 * pad
+    )
+
+
 def _fill_patient_info(ws, patient, reference_date):
     furigana = (
         patient.get("furigana")
@@ -220,9 +356,8 @@ def _fill_patient_info(ws, patient, reference_date):
 
 
 def _fill_symptoms(ws, cc):
-    """症状チェックリスト: 該当項目番号の前に○を追加"""
+    """症状チェックリスト: 該当項目に図形の○を配置（テンプレートテキスト非変更）"""
     symptom_rows = {
-        # 1-indexed row, field_name, items_in_order
         66: ("depressive_state", ["思考・運動抑制", "易刺激性・興奮", "憂うつ気分", "その他"]),
         68: ("manic_state", ["行為心迫", "多弁", "感情高揚・易刺激性", "その他"]),
         70: ("hallucination_delusion", ["幻覚", "妄想", "その他"]),
@@ -243,23 +378,27 @@ def _fill_symptoms(ws, cc):
         if not selected and field == "residual_state":
             selected = cc.get("personality_behavior", [])
         if selected:
-            orig = ws.range((row, 4)).value or ""
-            new_text = _mark_items_in_text(orig, items, selected)
-            _w(ws, row, 4, new_text)
+            for item in items:
+                if item in selected:
+                    _circle_item_in_cell(ws, row, 4, item)
 
     emo = cc.get("emotion_behavior", [])
     if emo:
-        orig76 = ws.range((76, 4)).value or ""
-        _w(ws, 76, 4, _mark_items_in_text(orig76, emotion_items_r76, emo))
-        orig77 = ws.range((77, 4)).value or ""
-        _w(ws, 77, 4, _mark_items_in_text(orig77, emotion_items_r77, emo))
+        for item in emotion_items_r76:
+            if item in emo:
+                _circle_item_in_cell(ws, 76, 4, item)
+        for item in emotion_items_r77:
+            if item in emo:
+                _circle_item_in_cell(ws, 77, 4, item)
 
     anx = cc.get("anxiety_neurosis", [])
     if anx:
-        orig79 = ws.range((79, 4)).value or ""
-        _w(ws, 79, 4, _mark_items_in_text(orig79, anxiety_items_r79, anx))
-        orig80 = ws.range((80, 4)).value or ""
-        _w(ws, 80, 4, _mark_items_in_text(orig80, anxiety_items_r80, anx))
+        for item in anxiety_items_r79:
+            if item in anx:
+                _circle_item_in_cell(ws, 79, 4, item)
+        for item in anxiety_items_r80:
+            if item in anx:
+                _circle_item_in_cell(ws, 80, 4, item)
 
     epi = cc.get("epilepsy", {})
     if epi.get("has_epilepsy"):
@@ -267,42 +406,36 @@ def _fill_symptoms(ws, cc):
         freq = epi.get("frequency", "")
         last = epi.get("last_seizure", "")
         last_y, last_m, last_d = _parse_ymd(last)
-        new_text = f"　　○１てんかん発作　発作型（{'○' + stype if stype else 'イ・ロ・ハ・ニ'}） 頻度（{freq or '　　'}回／月・年） 最終発作（{last_y or '　　'}年{last_m or '　'}月{last_d or '　'}日）"
+        new_text = f"　　１てんかん発作　発作型（{stype if stype else 'イ・ロ・ハ・ニ'}） 頻度（{freq or '　　'}回／月・年） 最終発作（{last_y or '　　'}年{last_m or '　'}月{last_d or '　'}日）"
         _w(ws, 83, 4, new_text)
+        _circle_item_in_cell(ws, 83, 4, "１てんかん発作")
+        if stype:
+            _circle_item_in_cell(ws, 83, 4, stype, include_number=False)
 
     sub = cc.get("substance_use", [])
     if sub:
-        orig88 = ws.range((88, 4)).value or ""
-        _w(ws, 88, 4, _mark_items_in_text(orig88, ["アルコール", "覚醒剤", "有機溶剤", "その他"], sub))
+        for item in ["アルコール", "覚醒剤", "有機溶剤", "その他"]:
+            if item in sub:
+                _circle_item_in_cell(ws, 88, 4, item)
 
     cog = cc.get("cognitive_learning", [])
     if cog:
-        orig91 = ws.range((91, 4)).value or ""
-        _w(ws, 91, 4, _mark_items_in_text(orig91, ["知的障害"], cog))
+        for item in ["知的障害"]:
+            if item in cog:
+                _circle_item_in_cell(ws, 91, 4, item)
 
     dev = cc.get("developmental", [])
     if dev:
-        orig96 = ws.range((96, 4)).value or ""
-        _w(ws, 96, 4, _mark_items_in_text(orig96, ["相互的な社会関係の質的障害", "コミュニケーションのパターンにおける質的障害"], dev))
-        orig97 = ws.range((97, 4)).value or ""
-        _w(ws, 97, 4, _mark_items_in_text(orig97, ["限定した常同的で反復的な関心と活動", "その他"], dev))
-
-
-def _mark_items_in_text(original_text, item_names, selected):
-    """テキスト中の該当する項目番号を丸数字に置き換える"""
-    if not original_text or not selected:
-        return original_text
-    text = str(original_text)
-    for item_name in item_names:
-        if item_name in selected:
-            idx = text.find(item_name)
-            if idx > 0:
-                text = _circle_nearest_number(text, idx)
-    return text
+        for item in ["相互的な社会関係の質的障害", "コミュニケーションのパターンにおける質的障害"]:
+            if item in dev:
+                _circle_item_in_cell(ws, 96, 4, item)
+        for item in ["限定した常同的で反復的な関心と活動", "その他"]:
+            if item in dev:
+                _circle_item_in_cell(ws, 97, 4, item)
 
 
 def _fill_welfare(ws, items, other_detail):
-    """福祉サービス: 該当項目に○を追加"""
+    """福祉サービス: 該当項目に図形の○を配置（テンプレートテキスト非変更）"""
     mapping = {
         "自立訓練": 183,
         "共同生活援助": 184,
@@ -311,14 +444,14 @@ def _fill_welfare(ws, items, other_detail):
         "訪問指導等": 187,
         "なし": 188,
     }
+    # その他の詳細を先に書き込む（テキスト変更後に図形配置）
+    if other_detail and "その他の障害福祉サービス" in items:
+        orig = ws.range((186, 5)).value or ""
+        _w(ws, 186, 5, f"{str(orig).rstrip()}（{other_detail}）" if orig else f"その他の障害福祉サービス（{other_detail}）")
+
     for item_name, row in mapping.items():
         if item_name in items:
-            orig = ws.range((row, 5)).value or ""
-            if orig:
-                _w(ws, row, 5, _circle_first_number(str(orig).lstrip()))
-
-    if other_detail and "その他の障害福祉サービス" in items:
-        _w(ws, 186, 5, f"④その他の障害福祉サービス（{other_detail}）")
+            _circle_item_in_cell(ws, row, 5, item_name)
 
 
 def _parse_ymd(d):
@@ -339,47 +472,6 @@ def _parse_ym(d):
         return (parts[0], str(int(parts[1])))
     return (d, "")
 
-
-def _circle_nearest_number(text, idx):
-    number_map = {
-        "1": "①", "2": "②", "3": "③", "4": "④", "5": "⑤",
-        "6": "⑥", "7": "⑦", "8": "⑧", "9": "⑨", "10": "⑩",
-        "１": "①", "２": "②", "３": "③", "４": "④", "５": "⑤",
-        "６": "⑥", "７": "⑦", "８": "⑧", "９": "⑨", "１０": "⑩",
-    }
-    i = idx - 1
-    while i >= 0 and text[i] in " \u3000":
-        i -= 1
-    if i < 0:
-        return text
-
-    if text[i] in "）)":
-        end = i
-        start = i - 1
-        while start >= 0 and text[start] not in "（(":
-            start -= 1
-        if start >= 0:
-            token = text[start + 1:end]
-            circled = number_map.get(token)
-            if circled:
-                return text[:start] + circled + text[end + 1:]
-
-    end = i
-    start = i
-    while start >= 0 and text[start] in "0123456789０１２３４５６７８９":
-        start -= 1
-    token = text[start + 1:end + 1]
-    circled = number_map.get(token)
-    if circled:
-        return text[:start + 1] + circled + text[end + 1:]
-    return text
-
-
-def _circle_first_number(text):
-    for idx, ch in enumerate(text):
-        if ch in "0123456789０１２３４５６７８９（(":
-            return _circle_nearest_number(text, idx + 2)
-    return text
 
 
 def _era_name(year_str):
