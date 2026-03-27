@@ -1,43 +1,40 @@
 @echo off
-chcp 65001 >nul
 cd /d "%~dp0"
 echo.
 echo =============================================
-echo   配布用 ZIP 作成
+echo   �z�z�p ZIP �쐬
 echo =============================================
 echo.
 
-:: ---- git archive で追跡ファイルのみZIP化 ----
-where git >nul 2>&1
+where git >/dev/null 2>&1
 if %ERRORLEVEL% NEQ 0 goto :no_git
 
-:: 出力先: 一つ上のフォルダに clinic_docs.zip
 set "ZIPFILE=%~dp0..\clinic_docs.zip"
 
 git archive --format=zip --output="%ZIPFILE%" HEAD
 if %ERRORLEVEL% NEQ 0 goto :zip_fail
 
-echo [OK] 作成完了: %ZIPFILE%
+echo [OK] �쐬����: %ZIPFILE%
 echo.
-echo --- 含まれないもの ---
-echo   config.json     ... 各PCの設定を保持するため
-echo   node_modules/   ... セットアップ時に自動インストール
-echo   output/         ... 生成済みファイル
-echo   __pycache__/    ... Pythonキャッシュ
+echo --- �܂܂�Ȃ����� ---
+echo   config.json     ... �ePC�̐ݒ��ێ����邽��
+echo   node_modules/   ... �Z�b�g�A�b�v���Ɏ����C���X�g�[��
+echo   output/         ... �����ς݃t�@�C��
+echo   __pycache__/    ... Python�L���b�V��
 echo.
-echo --- 別のPCでの使い方 ---
-echo   1. ZIPを展開して上書きOK
-echo   2. Win_セットアップ.bat をダブルクリック
+echo --- �ʂ�PC�ł̎g���� ---
+echo   1. ZIP��W�J���ď㏑��OK
+echo   2. Win_�Z�b�g�A�b�v.bat ���_�u���N���b�N
 echo.
 pause
 exit /b 0
 
 :no_git
-echo [ERROR] git が見つかりません。Git をインストールしてください。
+echo [ERROR] git ��������܂���BGit ���C���X�g�[�����Ă��������B
 pause
 exit /b 1
 
 :zip_fail
-echo [ERROR] ZIP作成に失敗しました。
+echo [ERROR] ZIP�쐬�Ɏ��s���܂����B
 pause
 exit /b 1

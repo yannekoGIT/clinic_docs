@@ -1,57 +1,50 @@
 @echo off
-chcp 65001 >nul
 cd /d "%~dp0"
 echo.
 echo =============================================
-echo   オンラインアップデート
+echo   �I�����C���A�b�v�f�[�g
 echo =============================================
 echo.
 
-:: ---- 1. git チェック ----
-where git >nul 2>&1
+where git >/dev/null 2>&1
 if %ERRORLEVEL% NEQ 0 goto :no_git
 
-:: ---- 2. gitリポジトリかチェック ----
-git rev-parse --git-dir >nul 2>&1
+git rev-parse --git-dir >/dev/null 2>&1
 if %ERRORLEVEL% NEQ 0 goto :no_repo
 
-:: ---- 3. git pull ----
-echo --- 最新版を取得中... ---
+echo --- �ŐV�ł��擾��... ---
 git pull origin master
 if %ERRORLEVEL% NEQ 0 goto :pull_fail
 
-:: ---- 4. 依存パッケージ更新 ----
 echo.
-echo --- Python パッケージを更新中... ---
+echo --- Python �p�b�P�[�W���X�V��... ---
 pip install -r requirements.txt --quiet
-echo [OK] Python パッケージ完了
-
+echo [OK] Python �p�b�P�[�W����
 echo.
-echo --- Node.js パッケージを更新中... ---
+echo --- Node.js �p�b�P�[�W���X�V��... ---
 call npm install --silent 2>nul
-echo [OK] Node.js パッケージ完了
+echo [OK] Node.js �p�b�P�[�W����
 
-:: ---- 5. 完了 ----
 echo.
 echo =============================================
-echo   アップデート完了！
+echo   �A�b�v�f�[�g����!
 echo =============================================
 echo.
-echo   config.json の設定はそのまま保持されています。
+echo   config.json �̐ݒ�͂��̂܂ܕێ�����Ă��܂��B
 echo.
 pause
 exit /b 0
 
 :no_git
-echo [ERROR] git が見つかりません。
-echo         https://git-scm.com/downloads からインストールしてください。
+echo [ERROR] git ��������܂���B
+echo         https://git-scm.com/downloads ����C���X�g�[�����Ă��������B
 echo.
 pause
 exit /b 1
 
 :no_repo
-echo [ERROR] このフォルダは git リポジトリではありません。
-echo         初回セットアップがまだの場合は、以下を実行してください:
+echo [ERROR] ���̃t�H���_�� git ���|�W�g���ł͂���܂���B
+echo         ����Z�b�g�A�b�v:
 echo.
 echo         git clone https://github.com/yannekoGIT/clinic_docs.git
 echo.
@@ -60,12 +53,12 @@ exit /b 1
 
 :pull_fail
 echo.
-echo [ERROR] 取得に失敗しました。
-echo         ネットワーク接続またはGitHub認証を確認してください。
+echo [ERROR] �擾�Ɏ��s���܂����B
+echo         �l�b�g���[�N�ڑ��܂���GitHub�F�؂��m�F���Ă��������B
 echo.
-echo   認証の設定方法:
+echo   �F�؂̐ݒ���@:
 echo     git config --global credential.helper manager
-echo     次回の git pull 時にブラウザでログインを求められます
+echo     ����� git pull ���Ƀu���E�U�Ń��O�C�������߂��܂�
 echo.
 pause
 exit /b 1

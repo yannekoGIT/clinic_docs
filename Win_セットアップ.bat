@@ -1,90 +1,82 @@
 @echo off
-chcp 65001 >nul
 cd /d "%~dp0"
 echo.
 echo =============================================
-echo   セットアップ / アップデート
+echo   �Z�b�g�A�b�v / �A�b�v�f�[�g
 echo =============================================
 echo.
 
-:: ---- 1. config.json が無ければテンプレからコピー ----
 if exist config.json goto :config_exists
 if not exist config.example.json goto :no_example
 copy config.example.json config.json >nul
-echo [初回] config.json を作成しました。
-echo        クリニック情報・API設定を編集してください。
+echo [����] config.json ���쐬���܂����B
+echo        �N���j�b�N���EAPI�ݒ��ҏW���Ă��������B
 echo.
 goto :check_python
 
 :no_example
-echo [ERROR] config.example.json が見つかりません。
+echo [ERROR] config.example.json ��������܂���B
 pause
 exit /b 1
 
 :config_exists
-echo [OK] config.json は既存のものを保持します。
+echo [OK] config.json �͊����̂��̂�ێ����܂��B
 
 :check_python
-:: ---- 2. Python チェック ----
-where python >nul 2>&1
+where python >/dev/null 2>&1
 if %ERRORLEVEL% NEQ 0 goto :no_python
 for /f "tokens=*" %%i in ('python --version 2^>^&1') do echo [OK] %%i
 goto :check_node
 
 :no_python
-echo [NG] Python が見つかりません。
-echo     https://www.python.org/downloads/ からインストールしてください。
+echo [NG] Python ��������܂���B
+echo     https://www.python.org/downloads/ ����C���X�g�[�����Ă��������B
 pause
 exit /b 1
 
 :check_node
-:: ---- 3. Node.js チェック ----
-where node >nul 2>&1
+where node >/dev/null 2>&1
 if %ERRORLEVEL% NEQ 0 goto :no_node
 for /f "tokens=*" %%i in ('node --version 2^>^&1') do echo [OK] Node.js %%i
 goto :install_deps
 
 :no_node
-echo [NG] Node.js が見つかりません。
-echo     https://nodejs.org/ からインストールしてください。
+echo [NG] Node.js ��������܂���B
+echo     https://nodejs.org/ ����C���X�g�[�����Ă��������B
 pause
 exit /b 1
 
 :install_deps
-:: ---- 4. 依存パッケージインストール ----
 echo.
-echo --- Python パッケージをインストール中... ---
+echo --- Python �p�b�P�[�W���C���X�g�[����... ---
 pip install -r requirements.txt --quiet
 if %ERRORLEVEL% NEQ 0 goto :pip_fail
-echo [OK] Python パッケージ完了
-
+echo [OK] Python �p�b�P�[�W����
 echo.
-echo --- Node.js パッケージをインストール中... ---
+echo --- Node.js �p�b�P�[�W���C���X�g�[����... ---
 call npm install --silent 2>nul
 if %ERRORLEVEL% NEQ 0 goto :npm_fail
-echo [OK] Node.js パッケージ完了
+echo [OK] Node.js �p�b�P�[�W����
 
-:: ---- 5. 出力フォルダ作成 ----
 if not exist output mkdir output
 
-:: ---- 6. 完了 ----
 echo.
 echo =============================================
-echo   セットアップ完了！
+echo   �Z�b�g�A�b�v����!
 echo =============================================
 echo.
-echo   初回の場合: config.json を編集してください。
-echo   アップデートの場合: 設定はそのまま保持されています。
+echo   ����̏ꍇ: config.json ��ҏW���Ă��������B
+echo   �A�b�v�f�[�g�̏ꍇ: �ݒ�͂��̂܂ܕێ�����Ă��܂��B
 echo.
 pause
 exit /b 0
 
 :pip_fail
-echo [NG] pip install に失敗しました。
+echo [NG] pip install �Ɏ��s���܂����B
 pause
 exit /b 1
 
 :npm_fail
-echo [NG] npm install に失敗しました。
+echo [NG] npm install �Ɏ��s���܂����B
 pause
 exit /b 1
