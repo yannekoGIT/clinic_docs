@@ -27,8 +27,8 @@ import sys, json, os, shutil
 from docx import Document
 from docx.shared import Pt
 from lxml import etree
-from docx.oxml.ns import nsdecls
-from docx.oxml import parse_xml
+from docx.oxml.ns import nsdecls  # noqa: F401 (used in _fill_designated_info_xml)
+from docx.oxml import parse_xml  # noqa: F401
 
 TEMPLATE = os.path.join(os.path.dirname(__file__), "..", "..", "sample", "自立支援", "2jiritsu.docx")
 
@@ -120,7 +120,7 @@ def fill_template(data, output_path):
     # --- R4: 2 病歴本文 ---
     course = data.get("clinical_course", "")
     if course:
-        _write_para(t0.cell(4, 2).paragraphs[0], course, font_size_override=Pt(9))
+        _write_para_compact(t0.cell(4, 2).paragraphs[0], course, max_chars=200)
 
     # --- R5: 3 症状チェックリスト ---
     _fill_symptoms(t0.cell(5, 0), cc)
@@ -130,36 +130,36 @@ def fill_template(data, output_path):
     # --- R0: 4 具体的程度 ---
     detail = data.get("condition_detail", "")
     if detail:
-        _write_para(t1.cell(0, 0).paragraphs[2], detail, font_size_override=Pt(9))
+        _write_para_compact(t1.cell(0, 0).paragraphs[2], detail, max_chars=100)
 
     # --- R2: 5 治療内容 ---
-    # P0-P2: 投薬値
     meds = treat.get("medications", [])
     med_cell = t1.cell(2, 0)
-    for i, m in enumerate(meds[:3]):
-        med_text = f"・{m['name']} {m.get('dosage','')} {m.get('frequency','')}"
-        _write_para(med_cell.paragraphs[i], med_text, font_size_override=Pt(9))
+
+    # (1) 投薬内容 — 全薬剤を1段落に横並びで記載（高さ節約）
+    if meds:
+        med_parts = [f"{m['name']} {m.get('dosage','')} {m.get('frequency','')}" for m in meds]
+        med_text = " / ".join(med_parts)
+        _write_para(med_cell.paragraphs[0], med_text, font_size_override=Pt(8))
 
     # P5-P7: 精神療法値
     psych = treat.get("psychotherapy", "")
     if psych:
-        # 長いテキストを複数段落に分割
-        psych_lines = psych.split("\n") if "\n" in psych else [psych]
-        for i, line in enumerate(psych_lines[:3]):
-            if i + 5 < len(med_cell.paragraphs):
-                _write_para(med_cell.paragraphs[5 + i], line, font_size_override=Pt(9))
+        _write_para_compact(med_cell.paragraphs[5], psych, max_chars=60)
 
-    # P8: (3) 訪問看護指示
+    # P8: (3) 訪問看護指示 — テキストは中立のまま、括弧内の有/無に図形の○
     designated = treat.get("designated_doctor", "")
-    if designated == "有":
-        _write_para(med_cell.paragraphs[8], "（３）訪問看護指示の有無（  ○有　・　無  ）")
-    elif designated == "無":
-        _write_para(med_cell.paragraphs[8], "（３）訪問看護指示の有無（  有　・　○無  ）")
+    if designated in ("有", "無"):
+        nursing_text = "（３）訪問看護指示の有無（  有　・　無  ）"
+        _write_para(med_cell.paragraphs[8], nursing_text)
+        # "有無"の有/無ではなく括弧内の有/無をrfindで探す
+        _circle_item_in_para(med_cell.paragraphs[8], designated,
+                             include_number=False, use_last=True)
 
     # --- R4: 6 治療方針 ---
     plan = data.get("treatment_plan", "")
     if plan:
-        _write_para(t1.cell(4, 0).paragraphs[0], plan, font_size_override=Pt(9))
+        _write_para_compact(t1.cell(4, 0).paragraphs[0], plan, max_chars=80)
 
     # --- R5-R6: 7 福祉サービス ---
     _fill_welfare(t1.cell(5, 0), wf)
@@ -211,8 +211,136 @@ def fill_template(data, output_path):
 
 
 # ============================================================
+# 図形の○（楕円シェイプ）ヘルパー — テキスト非変更で選択肢を囲む
+# ============================================================
+
+_shape_id_counter = 1000
+
+
+def _next_shape_id():
+    global _shape_id_counter
+    _shape_id_counter += 1
+    return _shape_id_counter
+
+
+def _display_width(text):
+    """全角=2, 半角=1 で表示幅を計算"""
+    w = 0
+    for ch in text:
+        cp = ord(ch)
+        if cp <= 0x7E or (0xFF61 <= cp <= 0xFF9F):
+            w += 1
+        else:
+            w += 2
+    return w
+
+
+def _get_para_font_size_pt(para, default=10):
+    """段落のフォントサイズ(pt)を取得"""
+    for run in para.runs:
+        if run.font.size:
+            return run.font.size.pt
+    return default
+
+
+def _add_oval_to_para(para, left_pt, top_pt, width_pt, height_pt):
+    """段落にフローティング楕円シェイプ（赤い○）を追加。
+    Word上で図形を移動・削除するだけで修正できる。"""
+    sid = _next_shape_id()
+    to_emu = lambda pt: int(pt * 12700)
+
+    xml = (
+        '<w:r xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"'
+        ' xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"'
+        ' xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"'
+        ' xmlns:wps="http://schemas.microsoft.com/office/word/2010/wordprocessingShape">'
+        '<w:rPr><w:noProof/></w:rPr>'
+        '<w:drawing>'
+        f'<wp:anchor distT="0" distB="0" distL="0" distR="0"'
+        f' simplePos="0" relativeHeight="{251660000 + sid}"'
+        f' behindDoc="0" locked="0" layoutInCell="1" allowOverlap="1">'
+        f'<wp:simplePos x="0" y="0"/>'
+        f'<wp:positionH relativeFrom="column">'
+        f'<wp:posOffset>{to_emu(left_pt)}</wp:posOffset></wp:positionH>'
+        f'<wp:positionV relativeFrom="paragraph">'
+        f'<wp:posOffset>{to_emu(top_pt)}</wp:posOffset></wp:positionV>'
+        f'<wp:extent cx="{to_emu(width_pt)}" cy="{to_emu(height_pt)}"/>'
+        '<wp:effectExtent l="0" t="0" r="0" b="0"/>'
+        '<wp:wrapNone/>'
+        f'<wp:docPr id="{sid}" name="Oval {sid}"/>'
+        '<a:graphic>'
+        '<a:graphicData uri="http://schemas.microsoft.com/office/word/2010/wordprocessingShape">'
+        '<wps:wsp><wps:cNvSpPr/><wps:spPr>'
+        f'<a:xfrm><a:off x="0" y="0"/>'
+        f'<a:ext cx="{to_emu(width_pt)}" cy="{to_emu(height_pt)}"/></a:xfrm>'
+        '<a:prstGeom prst="ellipse"><a:avLst/></a:prstGeom>'
+        '<a:noFill/>'
+        '<a:ln w="19050"><a:solidFill><a:srgbClr val="FF0000"/></a:solidFill></a:ln>'
+        '</wps:spPr><wps:bodyPr/></wps:wsp>'
+        '</a:graphicData></a:graphic>'
+        '</wp:anchor></w:drawing></w:r>'
+    )
+    para._element.append(etree.fromstring(xml))
+
+
+def _circle_item_in_para(para, item_text, include_number=True, use_last=False):
+    """段落テキスト内のitem_textを探し、赤い楕円シェイプを配置。
+    テキストは変更せず、図形を上に重ねるだけ。
+    use_last=Trueで最後の出現位置を使用（"有無"の"有"ではなく括弧内の"有"を選択）。
+    """
+    text = para.text
+    idx = text.rfind(item_text) if use_last else text.find(item_text)
+    if idx < 0:
+        return
+
+    target_start = idx
+    target_end = idx + len(item_text)
+
+    # 番号プレフィックスを含める
+    if include_number and idx > 0:
+        i = idx - 1
+        while i >= 0 and text[i] in ' \u3000':
+            i -= 1
+        if i >= 0:
+            j = i
+            while j > 0 and text[j - 1] not in ' \u3000':
+                j -= 1
+            target_start = j
+
+    font_size = _get_para_font_size_pt(para)
+    half_w = font_size / 2  # 半角1文字 = font_size/2 pt
+
+    # Word表セルの内部余白（デフォルト≈5.4pt）
+    cell_margin = 5.4
+    x_start = cell_margin + _display_width(text[:target_start]) * half_w
+    item_w = _display_width(text[target_start:target_end]) * half_w
+
+    height = font_size * 1.4
+    top = -font_size * 0.2  # テキストの上下中央に配置
+
+    _add_oval_to_para(para, x_start - 2, top, item_w + 4, height)
+
+
+# ============================================================
 # 段落テキスト操作（フォーマット保持）
 # ============================================================
+def _write_para_compact(para, text, max_chars=100):
+    """テキスト長に応じてフォントサイズを自動縮小し行間も圧縮して書き込む。
+    max_chars以下→9pt、1.5倍以下→8pt、それ以上→7ptを使用。"""
+    text_len = len(str(text))
+    if text_len <= max_chars:
+        font_size = Pt(9)
+    elif text_len <= max_chars * 1.5:
+        font_size = Pt(8)
+    else:
+        font_size = Pt(7)
+    _write_para(para, text, font_size_override=font_size)
+    # 行間を圧縮（段落前後のスペースを0に）
+    from docx.shared import Pt as _Pt
+    para.paragraph_format.space_before = _Pt(0)
+    para.paragraph_format.space_after = _Pt(0)
+
+
 def _write_para(para, text, font_size_override=None):
     """段落のテキストを置換。既存ランのフォント情報を保持する。"""
     # 既存ランからフォント情報を取得
@@ -257,8 +385,7 @@ def _append_to_para(para, text):
 # 症状チェックリスト
 # ============================================================
 def _fill_symptoms(cell, cc):
-    """R5C0の症状テキスト内で、該当項目番号の前に○を挿入する。"""
-    # 症状カテゴリ → (段落インデックスのリスト, フィールド名, 項目名リスト)
+    """R5C0の症状テキスト: 該当項目に赤い楕円シェイプを配置（テキスト非変更）"""
     categories = {
         "depressive_state": ([2], ["思考・運動抑制", "易刺激性・興奮", "憂うつ気分", "その他"]),
         "manic_state": ([4], ["行為心迫", "多弁", "感情高揚・易刺激性", "その他"]),
@@ -286,45 +413,14 @@ def _fill_symptoms(cell, cc):
             continue
         for pi in para_idxs:
             if pi < len(paras):
-                text = paras[pi].text
-                modified = _mark_items(text, items, selected)
-                if modified != text:
-                    _write_para(paras[pi], modified)
+                for item in items:
+                    if item in selected:
+                        _circle_item_in_para(paras[pi], item)
 
     # (12) その他
     other = cc.get("other", "")
     if other and 33 < len(paras):
         _write_para(paras[33], f"（12）その他（{other}）")
-
-
-def _mark_items(text, item_names, selected):
-    """テキスト中の選択された項目の数字を丸数字（①②③...）に置換する"""
-    circle_map = {
-        "１": "①", "２": "②", "３": "③", "４": "④", "５": "⑤",
-        "６": "⑥", "７": "⑦", "８": "⑧", "９": "⑨", "１０": "⑩",
-    }
-    for item_name in item_names:
-        if item_name not in selected:
-            continue
-        idx = text.find(item_name)
-        if idx <= 0:
-            continue
-        # 項目名の前にある数字を探す
-        i = idx - 1
-        while i >= 0 and text[i] in " \u3000":
-            i -= 1
-        if i < 0:
-            continue
-        # 数字の開始位置を探す
-        end = i
-        start = i
-        while start > 0 and text[start - 1] in "0123456789０１２３４５６７８９":
-            start -= 1
-        token = text[start:end + 1]
-        circled = circle_map.get(token)
-        if circled:
-            text = text[:start] + circled + text[end + 1:]
-    return text
 
 
 def _fill_diagnosis_run(para, blank_run_idx, value):
@@ -437,28 +533,17 @@ def _fill_designated_info_xml(doc, designated_num, years):
             )
 
 
-def _enclose_run(run):
-    """runにボーダー（囲み線）を付ける — ○で囲んだ効果"""
-    rPr = run._element.get_or_add_rPr()
-    bdr = parse_xml(
-        f'<w:bdr {nsdecls("w")} w:val="single" w:sz="4" w:space="1" w:color="000000"/>'
-    )
-    rPr.append(bdr)
-
-
 # ============================================================
 # 福祉サービス
 # ============================================================
 def _fill_welfare(cell, wf):
-    """福祉サービスの該当項目にボーダー（囲み）を付ける"""
+    """福祉サービスの該当項目に赤い楕円シェイプを配置（テキスト非変更）"""
     items = wf.get("items", [])
     if not items:
         return
     other_detail = wf.get("other_detail", "")
     paras = cell.paragraphs
 
-    # P3: (1)自立訓練, P4: (2)共同生活援助, P5: (3)居宅介護
-    # P6: (4)その他, P7: (5)訪問指導等, P8: (6)なし
     service_map = {
         "自立訓練": 3,
         "共同生活援助": 4,
@@ -468,19 +553,15 @@ def _fill_welfare(cell, wf):
         "なし": 8,
     }
 
-    for service_name, pi in service_map.items():
-        if service_name in items and pi < len(paras):
-            # 段落内の全runにボーダーを付けて囲む
-            for run in paras[pi].runs:
-                _enclose_run(run)
-
-    # その他の詳細
+    # その他の詳細を先に書き込む
     if other_detail and "その他の障害福祉サービス" in items and 6 < len(paras):
         text = paras[6].text
         text = text.replace("（　　　　　　　　　）", f"（{other_detail}）")
         _write_para(paras[6], text)
-        for run in paras[6].runs:
-            _enclose_run(run)
+
+    for service_name, pi in service_map.items():
+        if service_name in items and pi < len(paras):
+            _circle_item_in_para(paras[pi], service_name)
 
 
 # ============================================================
