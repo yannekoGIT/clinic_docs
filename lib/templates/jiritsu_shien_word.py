@@ -414,10 +414,15 @@ def _fill_symptoms(cell, cc):
 
 
 def _fill_diagnosis_run(para, blank_run_idx, value):
-    """病名行の空白run（全角スペース列）を値で置換する"""
+    """病名行の空白run（全角スペース列）を値で置換する。
+    下線付きrunの長さを維持するため、元の長さまで全角スペースでパディング。"""
     runs = para.runs
     if blank_run_idx < len(runs):
-        runs[blank_run_idx].text = "　" + value + "　"
+        orig_len = len(runs[blank_run_idx].text)
+        padded = "\u3000" + value + "\u3000"
+        if len(padded) < orig_len:
+            padded += "\u3000" * (orig_len - len(padded))
+        runs[blank_run_idx].text = padded
 
 
 def _find_nested_table(table, row_idx, cell_idx):
