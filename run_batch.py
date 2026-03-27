@@ -2,8 +2,8 @@
 """
 汎用バッチ生成スクリプト
 
-指定された書類タイプの input/{doc_type}/ フォルダ内の .txt ファイルを処理し、
-output/YYYY-MM-DD/ に書類(.docx)を生成する。
+input/ フォルダ直下の .txt ファイルを処理し、
+指定された書類タイプで output/YYYY-MM-DD/ に書類を生成する。
 
 使い方:
   python run_batch.py referral
@@ -14,7 +14,7 @@ output/YYYY-MM-DD/ に書類(.docx)を生成する。
 オプション:
   --provider api|local   LLMプロバイダーを指定（デフォルト: config.jsonの設定）
   --json-only            LLMによるJSON変換のみ（docx生成しない）
-  --from-json            input/{doc_type}/*.json から直接docx生成（LLMスキップ）
+  --from-json            input/*.json から直接書類生成（LLMスキップ）
   --save-json            中間JSONも output/ に保存
   --config PATH          設定ファイルパス（デフォルト: config.json）
 """
@@ -143,9 +143,7 @@ def main():
 
     doc_type = args.doc_type
     type_info = DOC_TYPES[doc_type]
-    # 派生タイプは元タイプと同じ入力フォルダを使用
-    input_folder = doc_type.replace("_word", "").replace("_docx", "")
-    input_dir = ROOT / "input" / input_folder
+    input_dir = ROOT / "input"
 
     # フォルダ準備
     input_dir.mkdir(parents=True, exist_ok=True)
@@ -168,8 +166,6 @@ def main():
         ext = ".json" if args.from_json else ".txt"
         print(f"\n[INFO] 入力ファイルがありません。")
         print(f"  {input_dir} に {ext} ファイルを配置してください。")
-        if (input_dir / "sample_karte.txt").exists():
-            print(f"  サンプル: input/{doc_type}/sample_karte.txt を参照")
         return
 
     print(f"\n対象ファイル: {len(files)}件")

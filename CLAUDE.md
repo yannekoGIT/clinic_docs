@@ -26,10 +26,7 @@ clinic_docs/
 │
 │  ★ ユーザーが触る部分 ★
 ├── config.json              # LLM設定 + クリニック情報（※要編集、gitignore対象）
-├── input/                   # カルテ入力フォルダ
-│   ├── referral/            #   紹介状バッチ入力用
-│   ├── jiritsu_shien/       #   自立支援バッチ入力用
-│   └── shougai_nenkin/      #   障害年金バッチ入力用
+├── input/                   # カルテ入力フォルダ（.txtを直下に配置）
 ├── output/                  # 生成ファイル出力先（日付別に自動整理）
 │
 │  ★ 実行ファイル ★
