@@ -325,20 +325,10 @@ def _circle_item_in_para(para, item_text, include_number=True, use_last=False):
 # 段落テキスト操作（フォーマット保持）
 # ============================================================
 def _write_para_compact(para, text, max_chars=100):
-    """テキスト長に応じてフォントサイズを自動縮小し行間も圧縮して書き込む。
-    max_chars以下→9pt、1.5倍以下→8pt、それ以上→7ptを使用。"""
-    text_len = len(str(text))
-    if text_len <= max_chars:
-        font_size = Pt(9)
-    elif text_len <= max_chars * 1.5:
-        font_size = Pt(8)
-    else:
-        font_size = Pt(7)
+    """テキスト長に応じてフォントサイズを自動縮小して書き込む。
+    max_chars以下→9pt、超過→8pt。レイアウト（行間等）は変更しない。"""
+    font_size = Pt(9) if len(str(text)) <= max_chars else Pt(8)
     _write_para(para, text, font_size_override=font_size)
-    # 行間を圧縮（段落前後のスペースを0に）
-    from docx.shared import Pt as _Pt
-    para.paragraph_format.space_before = _Pt(0)
-    para.paragraph_format.space_after = _Pt(0)
 
 
 def _write_para(para, text, font_size_override=None):
