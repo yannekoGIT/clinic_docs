@@ -64,12 +64,12 @@ def fill_template(data, output_path):
         ws.range((27, 56)).api.HorizontalAlignment = -4108  # xlCenter
         # ICDコードはラベル右側の記入欄に書く
         if data.get("icd_code_main"):
-            _write_boxed_text(ws, 27, 65, data["icd_code_main"])
+            _write_icd_code(ws, 27, data["icd_code_main"])
         # (2) 従たる精神障害
         if data.get("diagnosis_sub"):
             _w(ws, 29, 36, data["diagnosis_sub"])
         if data.get("icd_code_sub"):
-            _write_boxed_text(ws, 30, 65, data["icd_code_sub"])
+            _write_icd_code(ws, 30, data["icd_code_sub"])
         # (3) 身体合併症
         if data.get("comorbidity"):
             _w(ws, 32, 36, data["comorbidity"])
@@ -175,14 +175,20 @@ def _w(ws, row, col, value):
     ws.range((row, col)).value = value
 
 
-def _write_boxed_text(ws, row, start_col, value, max_chars=12, start_offset=2):
-    text = str(value or "")
-    for offset in range(max_chars):
-        ws.range((row, start_col + offset)).value = ""
-    cell = ws.range((row, start_col + start_offset))
-    cell.value = text[:max_chars]
-    cell.api.Font.Size = 8
-    cell.api.VerticalAlignment = -4108  # xlCenter
+def _write_icd_code(ws, row, value):
+    """ICDコードを結合セルに1文字ずつ書き込む。
+    テンプレートの結合セル構造: (row,65)1x1, (row,66)2x3, (row,69)2x3,
+    (row,72)1x1, (row,73)2x2, (row,75)1x1, (row,76)1x1, (row,77)2x2, ...
+    """
+    icd_cols = [65, 66, 69, 72, 73, 75, 76, 77, 79, 80]
+    text = str(value or "").strip()
+    for col in icd_cols:
+        ws.range((row, col)).value = ""
+    for i, ch in enumerate(text):
+        if i < len(icd_cols):
+            cell = ws.range((row, icd_cols[i]))
+            cell.value = ch
+            cell.api.Font.Size = 8
 
 
 def _write_footer_doctor(ws, doctor):
@@ -194,11 +200,8 @@ def _write_footer_doctor(ws, doctor):
 
 # ============================================================
 # 図形の○（シェイプ）ヘルパー — テキスト非変更で選択肢を囲む
-# フォントサイズから文字幅を直接計算して位置を決定する
+# セル幅÷文字数から実効文字幅を算出して位置を決定する
 # ============================================================
-
-# セル左端のインデント（pt）
-_CELL_MARGIN = 2
 
 
 def _add_circle_shape(ws, left, top, width, height):
@@ -219,22 +222,22 @@ def _get_font_size(ws, row, col):
         return 11
 
 
-def _text_width_pt(text, char_w):
-    """テキストのポイント幅を推定（全角=char_w, 半角=char_w/2）"""
-    w = 0.0
+def _display_width(text):
+    """全角=2, 半角=1 で表示幅を計算"""
+    w = 0
     for ch in text:
         cp = ord(ch)
         if cp <= 0x7E or (0xFF61 <= cp <= 0xFF9F):
-            w += char_w * 0.5
+            w += 1
         else:
-            w += char_w
+            w += 2
     return w
 
 
 def _circle_item_in_cell(ws, row, col, item_text, include_number=True):
     """結合セル内のテキストを探し、番号ごと図形の○で囲む。
 
-    フォントサイズから文字幅を計算し、セル左端からの絶対位置で配置。
+    セル幅とテキスト全体の表示幅から実効的な文字幅を算出し配置。
     テンプレート文字列を変更せず、図形を上に重ねるだけなので
     Excel上で図形を移動・削除するだけで修正できる。
     """
@@ -261,16 +264,23 @@ def _circle_item_in_cell(ws, row, col, item_text, include_number=True):
     ma = cell.api.MergeArea
     cell_left = ma.Left
     cell_top = ma.Top
+    cell_width = ma.Width
     cell_height = ma.Height
 
-    char_w = _get_font_size(ws, row, col)
-    x_offset = _text_width_pt(cell_text[:target_start], char_w)
-    x_width = _text_width_pt(cell_text[target_start:target_end], char_w)
+    # セル幅÷表示幅でテキストの実効配置比率を算出
+    total_dw = _display_width(cell_text)
+    if total_dw == 0:
+        return
+    start_dw = _display_width(cell_text[:target_start])
+    item_dw = _display_width(cell_text[target_start:target_end])
+
+    x_offset = cell_width * (start_dw / total_dw)
+    x_width = cell_width * (item_dw / total_dw)
 
     pad_x, pad_y = 3, 2
     _add_circle_shape(
         ws,
-        cell_left + _CELL_MARGIN + x_offset - pad_x,
+        cell_left + x_offset - pad_x,
         cell_top - pad_y,
         x_width + 2 * pad_x,
         cell_height + 2 * pad_y
@@ -280,7 +290,7 @@ def _circle_item_in_cell(ws, row, col, item_text, include_number=True):
 def _circle_in_treatment_cell(ws, row, col, full_text, target):
     """治療内容セル（複数行）内の「有」または「無」に図形の○を配置。
 
-    改行で行を分割し、フォントサイズから垂直・水平位置を計算して配置する。
+    改行で行を分割し、target を含む行の位置を推定して配置する。
     """
     lines = full_text.split('\n')
     target_line_idx = None
@@ -297,8 +307,7 @@ def _circle_in_treatment_cell(ws, row, col, full_text, target):
     ma = cell.api.MergeArea
     cell_left = ma.Left
     cell_top = ma.Top
-
-    char_w = _get_font_size(ws, row, col)
+    cell_width = ma.Width
 
     # 「　有　」「　無　」のように全角スペースで囲まれた文字を探す
     search = f"\u3000{target}\u3000"
@@ -310,9 +319,17 @@ def _circle_in_treatment_cell(ws, row, col, full_text, target):
     if char_idx < 0:
         return
 
-    x_offset = _text_width_pt(target_line[:char_idx], char_w)
-    x_width = _text_width_pt(target, char_w)
+    # 行内の位置比率で水平位置を算出
+    line_total_dw = _display_width(target_line)
+    if line_total_dw == 0:
+        return
+    target_start_dw = _display_width(target_line[:char_idx])
+    target_dw = _display_width(target)
 
+    x_offset = cell_width * (target_start_dw / line_total_dw)
+    x_width = cell_width * (target_dw / line_total_dw)
+
+    char_w = _get_font_size(ws, row, col)
     line_height = char_w * 1.3
     y = cell_top + target_line_idx * line_height
     h = line_height
@@ -320,7 +337,7 @@ def _circle_in_treatment_cell(ws, row, col, full_text, target):
     pad = 5
     _add_circle_shape(
         ws,
-        cell_left + _CELL_MARGIN + x_offset - pad,
+        cell_left + x_offset - pad,
         y,
         x_width + 2 * pad,
         h + 2 * pad
