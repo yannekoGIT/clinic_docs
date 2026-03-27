@@ -1,8 +1,8 @@
 @echo off
 echo.
 echo =============================================
-echo   ï¿½Ð‰ï¿½ï¿½iï¿½fï¿½Ãï¿½ï¿½ñ‹Ÿï¿½ï¿½jï¿½ì¬
-echo   ï¿½Rï¿½sï¿½yï¿½pï¿½eï¿½Lï¿½Xï¿½gï¿½i.txtï¿½jï¿½ð¶ï¿½ï¿½ï¿½ï¿½Ü‚ï¿½
+echo   Ð‰îóif—Ãî•ñ’ñ‹Ÿ‘jì¬
+echo   ƒRƒsƒy—pƒeƒLƒXƒgi.txtj‚ð¶¬‚µ‚Ü‚·
 echo =============================================
 echo.
 cd /d "%~dp0"
@@ -14,16 +14,16 @@ if "%1"=="--check" (
 )
 where python >nul 2>&1
 if %ERRORLEVEL% NEQ 0 (
-    echo [ERROR] Python ï¿½ï¿½ï¿½ï¿½ï¿½Â‚ï¿½ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½B
+    echo [ERROR] Python ‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñB
     pause
     exit /b 1
 )
 python run_batch.py referral %*
 echo.
 if %ERRORLEVEL% EQU 0 (
-    echo ï¿½oï¿½Íï¿½: output ï¿½tï¿½Hï¿½ï¿½ï¿½_ï¿½ï¿½ï¿½mï¿½Fï¿½ï¿½ï¿½Ä‚ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½B
+    echo o—Íæ: output ƒtƒHƒ‹ƒ_‚ðŠm”F‚µ‚Ä‚­‚¾‚³‚¢B
 ) else (
-    echo ï¿½Gï¿½ï¿½ï¿½[ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½ï¿½B
+    echo ƒGƒ‰[‚ª”­¶‚µ‚Ü‚µ‚½B
 )
 echo.
 pause

@@ -1,7 +1,7 @@
 @echo off
 echo.
 echo =============================================
-echo   ï¿½ï¿½Qï¿½Nï¿½ï¿½ï¿½fï¿½fï¿½ï¿½ï¿½iï¿½ï¿½ï¿½_ï¿½Ìï¿½Qï¿½pï¿½jï¿½oï¿½bï¿½`ï¿½ì¬
+echo   áŠQ”N‹àf’f‘i¸_‚ÌáŠQ—pjƒoƒbƒ`ì¬
 echo =============================================
 echo.
 cd /d "%~dp0"
@@ -13,18 +13,18 @@ if "%1"=="--check" (
 )
 where python >nul 2>&1
 if %ERRORLEVEL% NEQ 0 (
-    echo [ERROR] Python ï¿½ï¿½ï¿½ï¿½ï¿½Â‚ï¿½ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½B
+    echo [ERROR] Python ‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñB
     pause
     exit /b 1
 )
-echo ï¿½ï¿½Qï¿½Nï¿½ï¿½ï¿½fï¿½fï¿½ï¿½ï¿½i.xlsxï¿½jï¿½ð¶ï¿½ï¿½ï¿½ï¿½Ü‚ï¿½ï¿½B
+echo áŠQ”N‹àf’f‘i.xlsxj‚ð¶¬‚µ‚Ü‚·B
 echo.
 python run_batch.py shougai_nenkin %*
 echo.
 if %ERRORLEVEL% EQU 0 (
-    echo ï¿½oï¿½Íï¿½: output ï¿½tï¿½Hï¿½ï¿½ï¿½_ï¿½ï¿½ï¿½mï¿½Fï¿½ï¿½ï¿½Ä‚ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½B
+    echo o—Íæ: output ƒtƒHƒ‹ƒ_‚ðŠm”F‚µ‚Ä‚­‚¾‚³‚¢B
 ) else (
-    echo ï¿½Gï¿½ï¿½ï¿½[ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½ï¿½B
+    echo ƒGƒ‰[‚ª”­¶‚µ‚Ü‚µ‚½B
 )
 echo.
 pause
