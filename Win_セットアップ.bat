@@ -104,8 +104,7 @@ echo.
 echo   以下を手動で試してください:
 echo     npm install -g @openai/codex
 echo.
-echo   ※ Codex CLI が無くても config.json の provider を
-echo      "api" に変更すれば OpenAI API 経由で利用できます。
+echo   インストール後、このバッチを再実行してください。
 echo.
 pause
 exit /b 1
@@ -122,61 +121,27 @@ if exist "%USERPROFILE%\.codex\config.toml" goto :codex_auth_ok
 
 echo.
 echo  ***********************************************
-echo  *  Codex CLI の認証設定が必要です              *
+echo  *  Codex の認証設定が必要です（初回のみ）      *
 echo  ***********************************************
 echo.
-echo   OpenAI の API キーを設定します。
-echo.
-echo   【APIキーの取得方法】
-echo     1. ブラウザで以下を開く:
-echo        https://platform.openai.com/api-keys
-echo.
-echo     2. OpenAI アカウントでログイン
-echo        （アカウントが無い場合は「Sign up」から作成）
-echo.
-echo     3.「Create new secret key」をクリック
-echo     4. 表示されたキー（sk-... で始まる文字列）をコピー
+echo   ブラウザが開くので、OpenAI アカウントでログインしてください。
+echo   （アカウントが無い場合はその場で作成できます）
 echo.
 echo   ※ APIの利用には支払い設定が必要です（従量課金）
 echo     https://platform.openai.com/settings/organization/billing
 echo.
-echo  ---------------------------------------------
-echo.
 
-set /p "USER_API_KEY=  APIキーを貼り付けて Enter: "
-
-if "%USER_API_KEY%"=="" goto :codex_auth_skip
-
-REM システム環境変数に永続設定
-setx OPENAI_API_KEY "%USER_API_KEY%" >NUL 2>&1
-if %ERRORLEVEL% NEQ 0 goto :setx_fail
-
-REM 現在のセッションにも反映
-set "OPENAI_API_KEY=%USER_API_KEY%"
+call codex auth
+if %ERRORLEVEL% NEQ 0 goto :codex_auth_skip
 
 echo.
-echo  [OK] APIキーを設定しました（次回以降も有効です）
-goto :codex_auth_ok
-
-:setx_fail
-echo.
-echo  [注意] 環境変数の永続設定に失敗しました。
-echo         手動で設定してください:
-echo           setx OPENAI_API_KEY "sk-..."
-echo.
-echo         今回のセッションでは一時的に使用します。
-set "OPENAI_API_KEY=%USER_API_KEY%"
+echo  [OK] Codex 認証完了
 goto :codex_auth_ok
 
 :codex_auth_skip
 echo.
-echo  [スキップ] APIキーは後から設定できます。
-echo.
-echo   設定方法:
-echo     1. コマンドプロンプトで: setx OPENAI_API_KEY "sk-..."
-echo     2. または config.json の provider を "api" に変更し、
-echo        環境変数 OPENAI_API_KEY を設定
-echo.
+echo  [注意] 認証がスキップされました。
+echo         書類生成の実行時に再度認証を求められます。
 
 :codex_auth_ok
 echo.
