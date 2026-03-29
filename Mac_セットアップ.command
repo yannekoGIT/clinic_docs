@@ -23,7 +23,31 @@ else
     echo "[OK] config.json は既存のものを保持します。"
 fi
 
-# ---- 2. Python チェック ----
+# ---- 2. Git チェック + リポジトリ初期化 ----
+if ! command -v git &>/dev/null; then
+    echo ""
+    echo "  ***********************************************"
+    echo "  *  Git が見つかりません                        *"
+    echo "  ***********************************************"
+    echo ""
+    echo "  以下のいずれかでインストールしてください:"
+    echo "    xcode-select --install"
+    echo "    または https://git-scm.com/downloads"
+    echo ""
+    read -p "Press Enter to close..."
+    exit 1
+fi
+
+if ! git rev-parse --git-dir &>/dev/null; then
+    echo "  --- gitリポジトリを初期化しています... ---"
+    git init >/dev/null 2>&1
+    git remote add origin https://github.com/yannekoGIT/clinic_docs.git 2>/dev/null
+    echo "  [OK] git初期化完了（アップデートが利用可能になりました）"
+    echo ""
+fi
+echo "[OK] Git"
+
+# ---- 3. Python チェック ----
 if command -v python3 &>/dev/null; then
     echo "[OK] $(python3 --version)"
 else
@@ -40,7 +64,7 @@ else
     exit 1
 fi
 
-# ---- 3. Node.js チェック ----
+# ---- 4. Node.js チェック ----
 if command -v node &>/dev/null; then
     echo "[OK] Node.js $(node --version)"
 else
@@ -57,7 +81,7 @@ else
     exit 1
 fi
 
-# ---- 4. Codex CLI チェック ----
+# ---- 5. Codex CLI チェック ----
 if command -v codex &>/dev/null; then
     echo "[OK] Codex CLI $(codex --version 2>&1)"
 else
@@ -81,7 +105,7 @@ else
     echo "  [OK] Codex CLI インストール完了"
 fi
 
-# ---- 5. Codex CLI 認証チェック ----
+# ---- 6. Codex CLI 認証チェック ----
 if [ -n "$OPENAI_API_KEY" ]; then
     echo "[OK] Codex 認証済み"
 elif [ -f "$HOME/.codex/config.toml" ]; then
@@ -99,7 +123,7 @@ else
     echo "    https://platform.openai.com/settings/organization/billing"
     echo ""
 
-    codex auth
+    codex login
     if [ $? -eq 0 ]; then
         echo ""
         echo "  [OK] Codex 認証完了"
@@ -110,7 +134,7 @@ else
     fi
 fi
 
-# ---- 6. 依存パッケージインストール ----
+# ---- 7. 依存パッケージインストール ----
 echo ""
 echo "--- Python パッケージをインストール中... ---"
 pip3 install -r requirements.txt --quiet
@@ -121,13 +145,14 @@ echo "--- Node.js パッケージをインストール中... ---"
 npm install --silent 2>/dev/null
 echo "[OK] Node.js パッケージ完了"
 
-# ---- 7. 出力フォルダ作成 ----
+# ---- 8. フォルダ作成 ----
 mkdir -p output
+mkdir -p input
 
-# ---- 8. .command ファイルに実行権限付与 ----
+# ---- 9. .command ファイルに実行権限付与 ----
 chmod +x ./*.command 2>/dev/null
 
-# ---- 9. 完了 ----
+# ---- 10. 完了 ----
 echo ""
 echo "============================================="
 echo "  セットアップ完了！"

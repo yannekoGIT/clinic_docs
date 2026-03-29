@@ -15,7 +15,7 @@ copy config.example.json config.json >NUL
 echo [初回] config.json を作成しました。
 echo        クリニック情報を編集してください。
 echo.
-goto :check_python
+goto :check_git
 
 :no_example
 echo [ERROR] config.example.json が見つかりません。
@@ -26,7 +26,26 @@ exit /b 1
 echo [OK] config.json は既存のものを保持します。
 
 REM ==========================================
-REM  2. Python チェック
+REM  2. Git チェック + リポジトリ初期化
+REM ==========================================
+:check_git
+where git >NUL 2>&1
+if %ERRORLEVEL% NEQ 0 goto :no_git
+
+git rev-parse --git-dir >NUL 2>&1
+if %ERRORLEVEL% EQU 0 goto :git_ok
+
+echo  --- gitリポジトリを初期化しています... ---
+git init >NUL 2>&1
+git remote add origin https://github.com/yannekoGIT/clinic_docs.git 2>NUL
+echo  [OK] git初期化完了（アップデートが利用可能になりました）
+echo.
+
+:git_ok
+echo [OK] Git
+
+REM ==========================================
+REM  3. Python チェック
 REM ==========================================
 :check_python
 where python >NUL 2>&1
@@ -53,7 +72,7 @@ pause
 exit /b 1
 
 REM ==========================================
-REM  3. Node.js チェック
+REM  4. Node.js チェック
 REM ==========================================
 :check_node
 where node >NUL 2>&1
@@ -79,7 +98,7 @@ pause
 exit /b 1
 
 REM ==========================================
-REM  4. Codex CLI チェック
+REM  5. Codex CLI チェック
 REM ==========================================
 :check_codex
 where codex >NUL 2>&1
@@ -110,7 +129,7 @@ pause
 exit /b 1
 
 REM ==========================================
-REM  5. Codex CLI 認証チェック
+REM  6. Codex CLI 認証チェック
 REM ==========================================
 :check_codex_auth
 REM OPENAI_API_KEY が設定済みならOK
@@ -131,7 +150,7 @@ echo   ※ APIの利用には支払い設定が必要です（従量課金）
 echo     https://platform.openai.com/settings/organization/billing
 echo.
 
-call codex auth
+call codex login
 if %ERRORLEVEL% NEQ 0 goto :codex_auth_skip
 
 echo.
@@ -147,7 +166,7 @@ echo         書類生成の実行時に再度認証を求められます。
 echo.
 
 REM ==========================================
-REM  6. 依存パッケージ
+REM  7. 依存パッケージ
 REM ==========================================
 echo --- Python パッケージをインストール中... ---
 python -m pip install -r requirements.txt --quiet
@@ -160,6 +179,7 @@ if %ERRORLEVEL% NEQ 0 goto :npm_fail
 echo [OK] Node.js パッケージ完了
 
 if not exist output mkdir output
+if not exist input mkdir input
 
 echo.
 echo =============================================
@@ -175,6 +195,23 @@ echo     設定はそのまま保持されています。
 echo.
 pause
 exit /b 0
+
+:no_git
+echo.
+echo  ***********************************************
+echo  *  Git が見つかりません                        *
+echo  ***********************************************
+echo.
+echo   1. ブラウザで以下を開く:
+echo      https://git-scm.com/downloads/win
+echo.
+echo   2.「Click here to download」をクリック
+echo   3. ダウンロードしたファイルを実行
+echo   4. 設定はすべてデフォルト（そのまま Next）でOK
+echo   5. インストール完了後、このバッチを再実行してください
+echo.
+pause
+exit /b 1
 
 :pip_fail
 echo [NG] pip install に失敗しました。
