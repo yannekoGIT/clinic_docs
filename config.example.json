@@ -5,7 +5,7 @@
 
   "llm": {
     "_説明": "LLMプロバイダーの設定。provider を codex / api / local から選択",
-    "provider": "api",
+    "provider": "codex",
     "codex": {
       "model": "o4-mini"
     },
