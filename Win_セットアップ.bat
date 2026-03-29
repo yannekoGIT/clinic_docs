@@ -23,7 +23,7 @@ exit /b 1
 echo [OK] config.json は既存のものを保持します。
 
 :check_python
-where python >/dev/null 2>&1
+where python >NUL 2>&1
 if %ERRORLEVEL% NEQ 0 goto :no_python
 for /f "tokens=*" %%i in ('python --version 2^>^&1') do echo [OK] %%i
 goto :check_node
@@ -35,7 +35,7 @@ pause
 exit /b 1
 
 :check_node
-where node >/dev/null 2>&1
+where node >NUL 2>&1
 if %ERRORLEVEL% NEQ 0 goto :no_node
 for /f "tokens=*" %%i in ('node --version 2^>^&1') do echo [OK] Node.js %%i
 goto :install_deps
@@ -49,7 +49,7 @@ exit /b 1
 :install_deps
 echo.
 echo --- Python パッケージをインストール中... ---
-pip install -r requirements.txt --quiet
+python -m pip install -r requirements.txt --quiet
 if %ERRORLEVEL% NEQ 0 goto :pip_fail
 echo [OK] Python パッケージ完了
 echo.

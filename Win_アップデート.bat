@@ -205,7 +205,7 @@ REM ==========================================
 :install_deps
 echo.
 echo --- Python パッケージを更新中... ---
-pip install -r requirements.txt --quiet
+python -m pip install -r requirements.txt --quiet
 echo [OK] Python パッケージ完了
 echo.
 echo --- Node.js パッケージを更新中... ---
