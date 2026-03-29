@@ -247,15 +247,22 @@ REM ==========================================
 REM  gitリポジトリではない
 REM ==========================================
 :no_repo
-echo  ***********************************************
-echo  *  このフォルダはgitリポジトリではありません     *
-echo  ***********************************************
+echo  --- gitリポジトリを初期化しています... ---
 echo.
-echo   初回セットアップが必要です。
-echo   セットアップ用のバッチファイルを実行するか、
-echo   以下のコマンドを実行してください:
+git init >NUL 2>&1
+if %ERRORLEVEL% NEQ 0 goto :init_fail
+git remote add origin https://github.com/yannekoGIT/clinic_docs.git 2>NUL
+echo  [OK] git初期化完了
 echo.
-echo   git clone https://github.com/yannekoGIT/clinic_docs.git
-echo.
+echo --- 最新版を取得中... ---
+git fetch origin master >NUL 2>&1
+if %ERRORLEVEL% NEQ 0 goto :pull_fail
+git reset origin/master >NUL 2>&1
+git pull origin master
+if %ERRORLEVEL% NEQ 0 goto :pull_fail
+goto :install_deps
+
+:init_fail
+echo  [ERROR] gitリポジトリの初期化に失敗しました。
 pause
 exit /b 1

@@ -15,13 +15,22 @@ if ! command -v git &>/dev/null; then
     exit 1
 fi
 
-# ---- 2. gitリポジトリかチェック ----
+# ---- 2. gitリポジトリかチェック（未初期化なら自動設定） ----
 if ! git rev-parse --git-dir &>/dev/null; then
-    echo "[ERROR] このフォルダは git リポジトリではありません。"
-    echo "        初回セットアップ:"
-    echo "        git clone https://github.com/yannekoGIT/clinic_docs.git"
-    read -p "Press Enter to close..."
-    exit 1
+    echo "  --- gitリポジトリを初期化しています... ---"
+    echo ""
+    git init >/dev/null 2>&1
+    if [ $? -ne 0 ]; then
+        echo "[ERROR] gitリポジトリの初期化に失敗しました。"
+        read -p "Press Enter to close..."
+        exit 1
+    fi
+    git remote add origin https://github.com/yannekoGIT/clinic_docs.git 2>/dev/null
+    echo "  [OK] git初期化完了"
+    echo ""
+    echo "--- 最新版を取得中... ---"
+    git fetch origin master >/dev/null 2>&1
+    git reset origin/master >/dev/null 2>&1
 fi
 
 # ---- 3. git pull ----
