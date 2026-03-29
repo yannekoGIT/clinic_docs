@@ -127,6 +127,8 @@ else
     if [ $? -eq 0 ]; then
         echo ""
         echo "  [OK] Codex 認証完了"
+        # デフォルトモデルを設定
+        python3 lib/setup_codex_model.py
     else
         echo ""
         echo "  [注意] 認証がスキップされました。"

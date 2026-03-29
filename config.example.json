@@ -7,7 +7,7 @@
     "_説明": "LLMプロバイダーの設定（通常は変更不要）",
     "provider": "codex",
     "codex": {
-      "model": "o4-mini"
+      "model": "gpt-5.4"
     },
     "api": {
       "type": "openai_compatible",

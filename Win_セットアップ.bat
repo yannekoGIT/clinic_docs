@@ -155,6 +155,9 @@ if %ERRORLEVEL% NEQ 0 goto :codex_auth_skip
 
 echo.
 echo  [OK] Codex 認証完了
+
+REM デフォルトモデルを設定
+python lib\setup_codex_model.py
 goto :codex_auth_ok
 
 :codex_auth_skip
